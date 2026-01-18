@@ -1,0 +1,4540 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Laporan Penjualan Bulanan</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-header: #2c3e50;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-light: #ffffff;
+            --border-color: #dee2e6;
+            --hover-bg: #e2e6ea;
+            --accent-color: #007bff;
+            --accent-hover: #0056b3;
+            --accent-positive: #28a745;
+            --accent-positive-hover: #218838;
+            --weekend-bg: #fff8dc;
+            --weekend-hover: #ffecb5;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --input-focus: #0d6efd;
+            --input-bg: #ffffff;
+            --growth-positive: #198754;
+            --growth-negative: #dc3545;
+            --delete-bg: #dc3545;
+            --delete-hover: #c82333;
+            --highlight-bg: rgba(13, 110, 253, 0.1);
+            --selected-bg: rgba(13, 110, 253, 0.2);
+            --manual-override-border: #fd7e14;
+            --locked-bg: #e9ecef;
+            --warning-color: #dc3545;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1d23;
+            --bg-secondary: #121518;
+            --bg-header: #0d0f12;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --text-light: #f8f9fa;
+            --border-color: #495057;
+            --hover-bg: #1f2d3d;
+            --accent-color: #3399ff;
+            --accent-hover: #66b2ff;
+            --accent-positive: #28a745;
+            --accent-positive-hover: #218838;
+            --weekend-bg: #2a2e32;
+            --weekend-hover: #353d45;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --input-focus: #0d6efd;
+            --input-bg: #2c3034;
+            --growth-positive: #28a745;
+            --growth-negative: #dc3545;
+            --delete-bg: #e44d5a;
+            --delete-hover: #f16c78;
+            --highlight-bg: rgba(13, 110, 253, 0.15);
+            --selected-bg: rgba(13, 110, 253, 0.3);
+            --manual-override-border: #ffc107;
+            --locked-bg: #343a40;
+            --warning-color: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background-color: var(--bg-primary);
+            box-shadow: 0 4px 16px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--bg-header) 0%, #34495e 100%);
+            color: var(--text-light);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Month Navigation */
+        .month-navigation {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border-radius: 10px;
+        }
+
+        .month-navigation button {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid transparent;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .month-navigation button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .month-navigation button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--text-light);
+            padding: 0 10px;
+            min-width: 150px;
+        }
+
+        /* General Buttons */
+        button {
+            background-color: var(--accent-color);
+            color: var(--text-light);
+            border: none;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .icon-btn {
+            font-size: 24px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Unsaved Changes Indicator */
+        .icon-btn.unsaved {
+            background: var(--warning-color) !important;
+            border-color: var(--warning-color) !important;
+            animation: pulse-warning 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-warning {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+            }
+        }
+
+        /* Info Bar */
+        .info-bar {
+            background-color: var(--bg-secondary);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .user-role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .badge-superadmin {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            color: #000;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: #000;
+        }
+
+        .badge-staff {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #000;
+        }
+
+        .cache-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 8px;
+            background-color: #6c757d;
+        }
+
+        .cache-status.synced {
+            background-color: #28a745;
+        }
+
+        .cache-status.pending {
+            background-color: #ffc107;
+        }
+
+        .cache-status.error {
+            background-color: #dc3545;
+        }
+
+        /* Table */
+        .table-wrapper {
+            flex-grow: 1;
+            overflow: auto;
+            padding: 0 15px 15px 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            table-layout: auto;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--bg-header) 0%, #34495e 100%);
+            color: var(--text-light);
+            padding: 14px 12px;
+            text-align: center;
+            font-weight: 700;
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .main-header {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .sub-header {
+            font-size: 12px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
+        td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            transition: background-color 0.2s ease;
+            min-width: 100px;
+        }
+
+        tr:hover td {
+            background-color: var(--hover-bg);
+        }
+
+        .date-cell,
+        .number-cell {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            text-align: left;
+            padding-left: 14px;
+            min-width: 200px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .number-cell {
+            text-align: center;
+            min-width: 50px;
+            padding-left: 0;
+        }
+
+        .weekend {
+            background-color: var(--weekend-bg) !important;
+        }
+
+        .weekend:hover {
+            background-color: var(--weekend-hover) !important;
+        }
+
+        .selected-row td {
+            background-color: var(--selected-bg) !important;
+        }
+
+        .highlight-today td {
+            animation: highlight-fade 2s ease-out;
+        }
+
+        @keyframes highlight-fade {
+            0% {
+                background-color: var(--highlight-bg);
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        tr.weekend.highlight-today td {
+            animation: highlight-fade-weekend 2s ease-out;
+        }
+
+        @keyframes highlight-fade-weekend {
+            0% {
+                background-color: var(--highlight-bg);
+            }
+
+            100% {
+                background-color: var(--weekend-bg);
+            }
+        }
+
+        td input {
+            width: 100%;
+            min-width: 90px;
+            border: 2px solid transparent;
+            background: transparent;
+            text-align: right;
+            padding: 10px 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
+            font-weight: 600;
+        }
+
+        td input[type="text"]::-webkit-outer-spin-button,
+        td input[type="text"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        td input:not([readonly]) {
+            background-color: var(--input-bg);
+            border-radius: 6px;
+            border-color: var(--border-color);
+            cursor: text;
+        }
+
+        td input:not([readonly]):hover {
+            border-color: var(--input-focus);
+        }
+
+        td input:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            background-color: var(--input-bg);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+
+        td input[readonly] {
+            font-weight: 700;
+            color: var(--accent-color);
+            cursor: default;
+        }
+
+        td input.manual-override {
+            border-left: 3px solid var(--manual-override-border);
+            padding-left: 5px;
+        }
+
+        /* Locked Cell Styles */
+        td input.locked-cell {
+            background-color: var(--locked-bg) !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        td input.locked-cell:hover {
+            border-color: transparent !important;
+        }
+
+        .growth-positive {
+            color: var(--growth-positive) !important;
+            font-weight: 800 !important;
+        }
+
+        .growth-negative {
+            color: var(--growth-negative) !important;
+            font-weight: 800 !important;
+        }
+
+        .summary {
+            background-color: var(--bg-secondary) !important;
+            font-weight: 800;
+            position: sticky;
+            bottom: 0;
+            z-index: 5;
+        }
+
+        .summary td {
+            font-weight: 800;
+            font-size: 14px;
+            padding: 14px 8px;
+            border-top: 3px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Status Messages */
+        .status-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 24px;
+            border-radius: 25px;
+            background-color: var(--bg-header);
+            color: var(--text-light);
+            box-shadow: 0 6px 20px var(--shadow);
+            animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1001;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0s 0s;
+        }
+
+        .modal-content {
+            background-color: var(--bg-primary);
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 25px var(--shadow);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0 10px;
+        }
+
+        .close-modal:hover {
+            color: var(--text-primary);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal-body {
+            padding-top: 20px;
+        }
+
+        .modal-body .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-body h3 {
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .modal-body .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-body .action-buttons button {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .btn-import {
+            background-color: #28a745;
+        }
+
+        .btn-import:hover {
+            background-color: #218838;
+        }
+
+        .btn-delete {
+            background-color: var(--delete-bg);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--delete-hover);
+        }
+
+        .theme-toggle {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal-body .info-text {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .modal-body .info-text p {
+            margin: 0;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background-color: var(--border-color);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-switch.active {
+            background-color: var(--accent-positive);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        /* FAB */
+        .fab {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--accent-positive);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px var(--shadow);
+            cursor: pointer;
+            z-index: 999;
+            transition: transform 0.2s ease-in-out, background-color 0.2s;
+        }
+
+        .fab:hover {
+            background-color: var(--accent-positive-hover);
+            transform: scale(1.05);
+        }
+
+        /* Quick Input Modal - Station Based */
+        #quickInputModal .modal-content {
+            max-width: 400px;
+        }
+
+        .station-block {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .station-block-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .station-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .station-input-group {
+            flex: 1;
+        }
+
+        .station-input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .station-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .station-input-group input:focus {
+            outline: none;
+            border-color: var(--input-focus);
+        }
+
+        .station-total {
+            background-color: var(--bg-primary);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+
+        #quickSaveBtn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            background-color: var(--accent-positive);
+        }
+
+        #quickSaveBtn:hover {
+            background-color: var(--accent-positive-hover);
+        }
+
+        .post-save-actions {
+            text-align: center;
+        }
+
+        .post-save-actions h3 {
+            color: var(--growth-positive);
+            margin-bottom: 20px;
+        }
+
+        .post-save-actions .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Template Editor Modal */
+        #templateEditorModal .modal-content {
+            max-width: 500px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #templateEditorModal .modal-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #reportTemplateTextarea {
+            width: 100%;
+            flex-grow: 1;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            resize: vertical;
+        }
+
+        .placeholder-tags span {
+            display: inline-block;
+            background-color: var(--bg-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 2px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* User Management */
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .user-item-info {
+            flex: 1;
+        }
+
+        .user-item-email {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .user-item-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-item-actions button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Login Button */
+        .login-btn {
+            background: linear-gradient(135deg, var(--accent-color), #00c6ff);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .login-btn:active {
+            transform: translateY(1px);
+        }
+
+        .login-btn.logout {
+            background: linear-gradient(135deg, #ff5f6d, #ffc371);
+        }
+
+        [data-theme="dark"] .login-btn {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* =============================================
+           SUPER ADMIN ENHANCED STYLES
+           ============================================= */
+
+        /* Localhost Dev Mode Banner */
+        .dev-mode-banner {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            color: #000;
+            padding: 8px 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dev-mode-banner .dev-badge {
+            background: #000;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        /* Super Admin Panel */
+        .super-admin-panel {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 217, 61, 0.1));
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .super-admin-panel h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Access Requests */
+        .access-request-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .access-request-item.pending {
+            border-left-color: #ffc107;
+        }
+
+        .access-request-item.approved {
+            border-left-color: #28a745;
+        }
+
+        .access-request-item.rejected {
+            border-left-color: #dc3545;
+        }
+
+        .request-info {
+            flex: 1;
+        }
+
+        .request-email {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .request-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .request-actions select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+
+        .btn-approve {
+            background-color: #28a745 !important;
+        }
+
+        .btn-approve:hover {
+            background-color: #218838 !important;
+        }
+
+        .btn-reject {
+            background-color: #dc3545 !important;
+        }
+
+        .btn-reject:hover {
+            background-color: #c82333 !important;
+        }
+
+        /* Enhanced User List */
+        .user-list-enhanced {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .user-item-enhanced {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .user-item-enhanced:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .user-item-enhanced.inactive {
+            opacity: 0.6;
+            border-left: 4px solid #dc3545;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #00c6ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            margin-right: 12px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .user-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .user-status-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .status-inactive {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        /* Role Management */
+        .role-card {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .role-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .role-type-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .role-system {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .role-custom {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .permission-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .permission-tag {
+            padding: 4px 10px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .permission-tag.granted {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        /* Audit Log */
+        .audit-log-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .audit-log-item {
+            display: flex;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .audit-log-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .audit-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .audit-icon.action-login {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .audit-icon.action-user {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .audit-icon.action-config {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .audit-icon.action-security {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .audit-content {
+            flex: 1;
+        }
+
+        .audit-action {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .audit-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .audit-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* System Config */
+        .config-section {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .config-section h4 {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .config-item:last-child {
+            border-bottom: none;
+        }
+
+        .config-label {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .config-description {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background-color: var(--hover-bg);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--input-focus);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--accent-color), #00c6ff);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .btn-with-badge {
+            position: relative;
+        }
+
+        /* Modal Large */
+        .modal-content.modal-large {
+            max-width: 600px;
+            max-height: 85vh;
+        }
+
+        .modal-content.modal-xlarge {
+            max-width: 800px;
+            max-height: 90vh;
+        }
+
+        /* Responsive */
+
+        @media screen and (max-width: 768px) {
+            .header {
+                padding: 10px;
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 18px;
+                order: 1;
+            }
+
+            .month-navigation {
+                width: 100%;
+                justify-content: center;
+                order: 3;
+            }
+
+            .header-controls {
+                order: 2;
+            }
+
+            .current-month {
+                font-size: 16px;
+                min-width: 120px;
+            }
+
+            .info-bar {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+
+            .table-wrapper {
+                padding: 0 5px 5px 5px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th {
+                padding: 10px 8px;
+                font-size: 11px;
+            }
+
+            .main-header {
+                font-size: 12px;
+            }
+
+            .sub-header {
+                font-size: 10px;
+            }
+
+            td {
+                padding: 4px;
+                min-width: 90px;
+            }
+
+            td input {
+                font-size: 12px;
+                padding: 8px 6px;
+                min-width: 80px;
+            }
+
+            .date-cell {
+                min-width: 170px;
+                font-size: 12px;
+                padding-left: 10px;
+            }
+
+            .fab {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header {
+                align-items: center;
+            }
+
+            .header h1,
+            .header-controls,
+            .month-navigation {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .month-navigation {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .month-navigation button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Memuat data...</div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Laporan Penjualan Bulanan</h1>
+            <div class="month-navigation">
+                <button id="btnPrev" onclick="changeMonth(-1)">◄</button>
+                <button onclick="resetToCurrentMonth()">📍 Hari Ini</button>
+                <div class="current-month" id="currentMonth"></div>
+                <button id="btnNext" onclick="changeMonth(1)">►</button>
+            </div>
+            <div class="header-controls">
+                <button id="loginBtn" class="login-btn" onclick="loginGoogle()" title="Login dengan Google"
+                    style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12.545,10.239v3.821h5.445c-0.712,2.3-2.715,4.095-5.445,4.095c-3.178,0-5.756-2.578-5.756-5.756 s2.578-5.756,5.756-5.756c1.472,0,2.805,0.522,3.844,1.498l2.903-2.903c-1.89-1.748-4.321-2.92-6.747-2.92 C5.344,2.316,0,7.662,0,14.61s5.344,12.295,11.905,12.295c5.385,0,9.972-3.882,9.972-10.707c0-0.748-0.09-1.465-0.201-2.153L12.545,10.239z" />
+                    </svg>
+                    Masuk
+                </button>
+                <button id="logoutBtn" class="login-btn logout" onclick="logoutGoogle()" title="Keluar dari Akun"
+                    style="display: none;">Keluar</button>
+                <button id="copyReportBtn" class="icon-btn" onclick="copyReport()"
+                    title="Salin Laporan (Pilih tanggal dulu)">📋</button>
+                <button id="saveBtn" class="icon-btn" onclick="manualSave()" title="Simpan Data">💾</button>
+                <button id="settingsBtn" class="icon-btn" onclick="toggleSettingsModal()" title="Pengaturan">⚙️</button>
+            </div>
+        </div>
+
+        <!-- Info Bar -->
+        <div class="info-bar">
+            <div class="info-text">
+                <span id="dayCount"></span> • <strong>Input 4 kolom utama saja</strong>
+                <span id="userRoleBadge"></span>
+                <span id="cacheStatus" class="cache-status" title="Status sinkronisasi"></span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" id="tableWrapper">
+            <table id="salesTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="main-header">NO</th>
+                        <th rowspan="2" class="main-header">TANGGAL</th>
+                        <th colspan="6" class="main-header">PENJUALAN (NET)</th>
+                        <th colspan="6" class="main-header">STRUK</th>
+                        <th colspan="2" class="main-header">APC</th>
+                    </tr>
+                    <tr>
+                        <th class="sub-header">SHIFT 1</th>
+                        <th class="sub-header">SHIFT 2</th>
+                        <th class="sub-header">TOTAL</th>
+                        <th class="sub-header">AKM</th>
+                        <th class="sub-header">SPD</th>
+                        <th class="sub-header">GROWTH</th>
+                        <th class="sub-header">SHIFT 1</th>
+                        <th class="sub-header">SHIFT 2</th>
+                        <th class="sub-header">TOTAL</th>
+                        <th class="sub-header">AKM</th>
+                        <th class="sub-header">STD</th>
+                        <th class="sub-header">GROWTH</th>
+                        <th class="sub-header">APC</th>
+                        <th class="sub-header">GROWTH</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- FAB -->
+        <button class="fab" onclick="openQuickInputModal()" title="Input Cepat Hari Ini">+</button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay" onclick="toggleSettingsModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Pengaturan</h2>
+                <button class="close-modal" onclick="toggleSettingsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Tampilan</h3>
+                <div class="setting-item">
+                    <span>Ganti Tema</span>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <span id="themeIcon">🌙</span>
+                        <span id="themeText">Dark</span>
+                    </button>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="toggleTemplateEditor()">✍️ Edit Template Laporan</button>
+                </div>
+
+                <!-- Admin Mode Toggle - Only visible for admin/superadmin -->
+                <div id="adminModeSection" style="display: none;">
+                    <h3>🔐 Mode Admin</h3>
+                    <div class="setting-item">
+                        <span>🔓 Edit Data Lama</span>
+                        <div id="adminModeToggle" class="toggle-switch" onclick="toggleAdminMode()"></div>
+                    </div>
+                    <div class="info-text">
+                        <p>Aktifkan untuk mengedit data yang sudah terkunci.</p>
+                    </div>
+                </div>
+
+                <!-- User Management - Only visible for superadmin -->
+                <div id="userManagementSection" style="display: none;">
+                    <h3>👥 Manajemen Akses</h3>
+                    <div class="action-buttons">
+                        <button onclick="openUserManagementModal()">👥 Kelola Pengguna</button>
+                    </div>
+                </div>
+
+                <h3>Manajemen Data</h3>
+                <div class="action-buttons">
+                    <button class="btn-import" onclick="toggleImportModal()">📤 Import Data</button>
+                    <button onclick="exportCurrentMonth()">📥 Salin Bulan Ini</button>
+                    <button onclick="exportAllData()">📥 Salin Semua Data</button>
+                    <button class="btn-delete" onclick="clearCurrentMonthData()">🗑️ Hapus Data Bulan Ini</button>
+                </div>
+                <div class="info-text">
+                    <p><strong>Cache Info:</strong> Data di-cache lokal untuk performa optimal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Input Modal -->
+    <div id="quickInputModal" class="modal-overlay">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="quickInputTitle">Input Cepat</h2>
+                <button class="close-modal" onclick="closeQuickInputModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="quickInputBody"></div>
+        </div>
+    </div>
+
+    <!-- Template Editor Modal -->
+    <div id="templateEditorModal" class="modal-overlay">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Editor Template Laporan</h2>
+                <button class="close-modal" onclick="toggleTemplateEditor()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="reportTemplateTextarea"></textarea>
+                <div>
+                    <strong>Tag Tersedia (klik untuk salin):</strong>
+                    <div class="placeholder-tags"></div>
+                </div>
+                <div class="template-actions">
+                    <button class="btn-delete" onclick="resetTemplate()">Reset Default</button>
+                    <button onclick="saveTemplate()">Simpan Template</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal-overlay" onclick="toggleExportModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Export Data</h2>
+                <button class="close-modal" onclick="toggleExportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="exportTextArea" readonly
+                    style="width: 100%; height: 50vh; white-space: pre; font-family: monospace; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; background-color: var(--input-bg); color: var(--text-primary);"></textarea>
+                <div class="action-buttons" style="margin-top: 15px;">
+                    <button onclick="copyExportText()">📋 Salin Semua</button>
+                    <button onclick="toggleExportModal()">✓ Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="modal-overlay" onclick="toggleImportModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Import Data</h2>
+                <button class="close-modal" onclick="toggleImportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="importTextArea"
+                    style="width: 100%; height: 50vh; white-space: pre; font-family: monospace; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; background-color: var(--input-bg); color: var(--text-primary);"></textarea>
+                <div class="action-buttons" style="margin-top: 15px;">
+                    <button onclick="handleImport()">📤 Import</button>
+                    <button onclick="toggleImportModal()">✖ Batal</button>
+                </div>
+                <div class="info-text" style="margin-top: 15px;">
+                    <p>Tempel teks hasil ekspor ke kotak di atas, lalu tekan Import.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Super Admin Control Panel Modal -->
+    <div id="userManagementModal" class="modal-overlay" onclick="closeUserManagementModal()">
+        <div class="modal-content modal-xlarge" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>👑 Panel Super Admin</h2>
+                <button class="close-modal" onclick="closeUserManagementModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('accessRequests')">
+                        🔔 Permintaan Akses <span id="pendingRequestsBadge" class="notification-badge"
+                            style="display: none;">0</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('userManagement')">👥 Pengguna</button>
+                    <button class="tab-btn" onclick="switchTab('roleManagement')">🎭 Role</button>
+                    <button class="tab-btn" onclick="switchTab('systemConfig')">⚙️ Sistem</button>
+                    <button class="tab-btn" onclick="switchTab('auditLog')">📋 Audit Log</button>
+                </div>
+
+                <!-- Tab Content: Access Requests -->
+                <div id="tab-accessRequests" class="tab-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card warning">
+                            <div class="stat-value" id="statPendingRequests">0</div>
+                            <div class="stat-label">Permintaan Pending</div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-value" id="statApprovedToday">0</div>
+                            <div class="stat-label">Disetujui Hari Ini</div>
+                        </div>
+                        <div class="stat-card danger">
+                            <div class="stat-value" id="statRejectedToday">0</div>
+                            <div class="stat-label">Ditolak Hari Ini</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 15px 0 10px 0;">📬 Daftar Permintaan Akses</h3>
+                    <div id="accessRequestsList" class="user-list-enhanced">
+                        <!-- Access requests will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Tab Content: User Management -->
+                <div id="tab-userManagement" class="tab-content">
+                    <div class="search-bar">
+                        <input type="text" id="userSearchInput" placeholder="🔍 Cari pengguna..."
+                            oninput="filterUsers()">
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statTotalUsers">0</div>
+                            <div class="stat-label">Total Pengguna</div>
+                        </div>
+                        <div class="stat-card secondary">
+                            <div class="stat-value" id="statActiveUsers">0</div>
+                            <div class="stat-label">Aktif</div>
+                        </div>
+                        <div class="stat-card danger">
+                            <div class="stat-value" id="statInactiveUsers">0</div>
+                            <div class="stat-label">Nonaktif</div>
+                        </div>
+                    </div>
+
+                    <div id="userListEnhanced" class="user-list-enhanced">
+                        <!-- Enhanced user list will be populated here -->
+                    </div>
+
+                    <div class="super-admin-panel" style="margin-top: 15px;">
+                        <h3>➕ Tambah Pengguna Manually</h3>
+                        <div class="form-group">
+                            <label for="newUserEmail">Email</label>
+                            <input type="email" id="newUserEmail" placeholder="contoh@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserRole">Role</label>
+                            <select id="newUserRole">
+                                <option value="staff">Staff (Edit Hari Ini & Kemarin)</option>
+                                <option value="admin">Admin (Bisa Edit Data Lama)</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-import" onclick="addNewUser()">➕ Tambah Pengguna</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Role Management -->
+                <div id="tab-roleManagement" class="tab-content">
+                    <h3 style="margin-bottom: 15px;">🎭 Daftar Role</h3>
+
+                    <!-- System Roles -->
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-name">👑 Super Admin</span>
+                            <span class="role-type-badge role-system">Sistem</span>
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
+                            Akses penuh ke seluruh sistem tanpa batasan.
+                        </p>
+                        <div class="permission-list">
+                            <span class="permission-tag granted">Semua Akses</span>
+                            <span class="permission-tag granted">Kelola Pengguna</span>
+                            <span class="permission-tag granted">Kelola Role</span>
+                            <span class="permission-tag granted">Edit Data Lama</span>
+                            <span class="permission-tag granted">Konfigurasi Sistem</span>
+                        </div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-name">🔑 Admin</span>
+                            <span class="role-type-badge role-system">Sistem</span>
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
+                            Dapat mengaktifkan mode admin untuk edit data lama.
+                        </p>
+                        <div class="permission-list">
+                            <span class="permission-tag granted">Input Data</span>
+                            <span class="permission-tag granted">Edit Data Lama (Mode Admin)</span>
+                            <span class="permission-tag granted">Lihat Laporan</span>
+                            <span class="permission-tag">Kelola Pengguna</span>
+                        </div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-name">👤 Staff</span>
+                            <span class="role-type-badge role-system">Sistem</span>
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
+                            Hanya bisa edit data hari ini dan kemarin.
+                        </p>
+                        <div class="permission-list">
+                            <span class="permission-tag granted">Input Data (Hari Ini)</span>
+                            <span class="permission-tag granted">Input Data (Kemarin)</span>
+                            <span class="permission-tag granted">Lihat Laporan</span>
+                            <span class="permission-tag">Edit Data Lama</span>
+                        </div>
+                    </div>
+
+                    <!-- Custom Roles -->
+                    <div id="customRolesList">
+                        <!-- Custom roles will be populated here -->
+                    </div>
+
+                    <div class="super-admin-panel" style="margin-top: 15px;">
+                        <h3>➕ Buat Role Kustom</h3>
+                        <div class="form-group">
+                            <label for="newRoleName">Nama Role</label>
+                            <input type="text" id="newRoleName" placeholder="Supervisor">
+                        </div>
+                        <div class="form-group">
+                            <label>Izin</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                                    <input type="checkbox" id="perm_inputData" checked> Input Data
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                                    <input type="checkbox" id="perm_editOldData"> Edit Data Lama
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                                    <input type="checkbox" id="perm_viewReports" checked> Lihat Laporan
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                                    <input type="checkbox" id="perm_exportData"> Export Data
+                                </label>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-import" onclick="createCustomRole()">➕ Buat Role</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: System Config -->
+                <div id="tab-systemConfig" class="tab-content">
+                    <div class="config-section">
+                        <h4>🎨 Tampilan</h4>
+                        <div class="config-item">
+                            <div>
+                                <div class="config-label">Tema Default</div>
+                                <div class="config-description">Tema yang diterapkan untuk pengguna baru</div>
+                            </div>
+                            <select id="configDefaultTheme"
+                                style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary);">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h4>🔐 Keamanan</h4>
+                        <div class="config-item">
+                            <div>
+                                <div class="config-label">Registrasi Terbuka</div>
+                                <div class="config-description">Izinkan siapapun dengan link mendaftar (melalui Access
+                                    Request)</div>
+                            </div>
+                            <div id="configOpenRegistration" class="toggle-switch active"
+                                onclick="toggleConfig('openRegistration')"></div>
+                        </div>
+                        <div class="config-item">
+                            <div>
+                                <div class="config-label">Log Aktivitas</div>
+                                <div class="config-description">Catat semua aktivitas penting ke Audit Log</div>
+                            </div>
+                            <div id="configAuditLogging" class="toggle-switch active"
+                                onclick="toggleConfig('auditLogging')"></div>
+                        </div>
+                        <div class="config-item">
+                            <div>
+                                <div class="config-label">Peringatan Login Gagal</div>
+                                <div class="config-description">Tampilkan peringatan setelah 3x login gagal</div>
+                            </div>
+                            <div id="configLoginWarning" class="toggle-switch active"
+                                onclick="toggleConfig('loginWarning')"></div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h4>📊 Data</h4>
+                        <div class="config-item">
+                            <div>
+                                <div class="config-label">Auto-Lock Data</div>
+                                <div class="config-description">Kunci otomatis data setelah lewat dari hari</div>
+                            </div>
+                            <div id="configAutoLock" class="toggle-switch active" onclick="toggleConfig('autoLock')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button onclick="saveSystemConfig()">💾 Simpan Konfigurasi</button>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Audit Log -->
+                <div id="tab-auditLog" class="tab-content">
+                    <div class="search-bar">
+                        <input type="text" id="auditSearchInput" placeholder="🔍 Cari aktivitas..."
+                            oninput="filterAuditLog()">
+                        <select id="auditFilterType" onchange="filterAuditLog()"
+                            style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary);">
+                            <option value="all">Semua</option>
+                            <option value="login">Login</option>
+                            <option value="user">Pengguna</option>
+                            <option value="config">Konfigurasi</option>
+                            <option value="security">Keamanan</option>
+                        </select>
+                    </div>
+
+                    <div id="auditLogList" class="audit-log-list">
+                        <!-- Audit logs will be populated here -->
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button onclick="exportAuditLog()">📥 Export Log</button>
+                        <button class="btn-delete" onclick="clearAuditLog()">🗑️ Hapus Log Lama</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // =====================================================
+        // KONFIGURASI DAN INISIALISASI
+        // =====================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZwZdIHdOBg0euyu2q4Zd3ieHExiCllj8",
+            authDomain: "salesflow-35f8d.firebaseapp.com",
+            projectId: "salesflow-35f8d",
+            storageBucket: "salesflow-35f8d.firebasestorage.app",
+            messagingSenderId: "541136712082",
+            appId: "1:541136712082:web:89c518c39bcf58f7c1114b",
+            measurementId: "G-5K6Q2Q378K"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // =====================================================
+        // KONFIGURASI ADMIN
+        // =====================================================
+        const SUPER_ADMIN_EMAIL = "huyinayena@gmail.com";
+
+        // =====================================================
+        // LOCALHOST DETECTION & DEV MODE
+        // =====================================================
+        function isLocalhost() {
+            const hostname = window.location.hostname;
+            return hostname === 'localhost' || hostname === '127.0.0.1';
+        }
+
+        let isDevMode = isLocalhost();
+
+        function initDevMode() {
+            if (isDevMode) {
+                // Add dev mode banner
+                const banner = document.createElement('div');
+                banner.className = 'dev-mode-banner';
+                banner.innerHTML = `
+                    <span class="dev-badge">DEV</span>
+                    🚀 Mode Localhost Aktif - Super Admin tanpa login
+                    <button onclick="disableDevMode()" style="margin-left: 10px; padding: 4px 12px; background: #000; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">Nonaktifkan</button>
+                `;
+                document.body.insertBefore(banner, document.body.firstChild);
+
+                // Set Super Admin role immediately
+                currentUserRole = 'superadmin';
+                console.log('🚀 Localhost detected - Super Admin mode enabled');
+            }
+        }
+
+        function disableDevMode() {
+            isDevMode = false;
+            const banner = document.querySelector('.dev-mode-banner');
+            if (banner) banner.remove();
+            currentUserRole = null;
+            updateUIForRole();
+            showMessage('Mode Development dinonaktifkan');
+        }
+
+        // =====================================================
+        // SYSTEM CONFIGURATION
+        // =====================================================
+        let systemConfig = {
+            defaultTheme: 'light',
+            openRegistration: true,
+            auditLogging: true,
+            loginWarning: true,
+            autoLock: true
+        };
+
+        async function loadSystemConfig() {
+            try {
+                const doc = await db.collection('systemConfig').doc('main').get();
+                if (doc.exists) {
+                    systemConfig = { ...systemConfig, ...doc.data() };
+                }
+                updateConfigUI();
+            } catch (error) {
+                console.error('Error loading system config:', error);
+            }
+        }
+
+        function updateConfigUI() {
+            document.getElementById('configDefaultTheme').value = systemConfig.defaultTheme;
+
+            ['openRegistration', 'auditLogging', 'loginWarning', 'autoLock'].forEach(key => {
+                const toggle = document.getElementById(`config${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                if (toggle) {
+                    toggle.classList.toggle('active', systemConfig[key]);
+                }
+            });
+        }
+
+        function toggleConfig(key) {
+            systemConfig[key] = !systemConfig[key];
+            const toggle = document.getElementById(`config${key.charAt(0).toUpperCase() + key.slice(1)}`);
+            if (toggle) {
+                toggle.classList.toggle('active', systemConfig[key]);
+            }
+        }
+
+        async function saveSystemConfig() {
+            systemConfig.defaultTheme = document.getElementById('configDefaultTheme').value;
+
+            try {
+                await db.collection('systemConfig').doc('main').set({
+                    ...systemConfig,
+                    updatedAt: new Date(),
+                    updatedBy: auth.currentUser?.email || 'localhost'
+                });
+
+                await logAuditAction('config', 'Konfigurasi sistem diperbarui', systemConfig);
+                showMessage('✅ Konfigurasi berhasil disimpan');
+            } catch (error) {
+                console.error('Error saving config:', error);
+                showMessage('❌ Gagal menyimpan konfigurasi');
+            }
+        }
+
+        // =====================================================
+        // ACCESS REQUEST SYSTEM
+        // =====================================================
+        async function submitAccessRequest(email) {
+            if (!systemConfig.openRegistration) {
+                showMessage('❌ Registrasi ditutup. Hubungi admin.');
+                return;
+            }
+
+            try {
+                await db.collection('accessRequests').doc(email).set({
+                    email: email,
+                    status: 'pending',
+                    requestedAt: new Date(),
+                    reviewedBy: null,
+                    reviewedAt: null,
+                    assignedRole: null
+                });
+
+                await logAuditAction('login', `Permintaan akses baru: ${email}`);
+                showMessage('📧 Permintaan akses telah dikirim. Menunggu persetujuan admin.');
+            } catch (error) {
+                console.error('Error submitting access request:', error);
+                showMessage('❌ Gagal mengirim permintaan akses');
+            }
+        }
+
+        async function loadAccessRequests() {
+            const listEl = document.getElementById('accessRequestsList');
+            listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Memuat...</p>';
+
+            try {
+                const snapshot = await db.collection('accessRequests')
+                    .orderBy('requestedAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                if (snapshot.empty) {
+                    listEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-text">Tidak ada permintaan akses</div>
+                        </div>
+                    `;
+                    updateAccessRequestStats(0, 0, 0);
+                    return;
+                }
+
+                let html = '';
+                let pendingCount = 0, approvedToday = 0, rejectedToday = 0;
+                const today = new Date().toDateString();
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const email = doc.id;
+                    const statusClass = data.status;
+                    const requestTime = data.requestedAt?.toDate ?
+                        data.requestedAt.toDate().toLocaleString('id-ID') : 'Unknown';
+
+                    if (data.status === 'pending') pendingCount++;
+                    if (data.status === 'approved' && data.reviewedAt?.toDate?.().toDateString() === today) approvedToday++;
+                    if (data.status === 'rejected' && data.reviewedAt?.toDate?.().toDateString() === today) rejectedToday++;
+
+                    if (data.status === 'pending') {
+                        html += `
+                            <div class="access-request-item ${statusClass}">
+                                <div class="request-info">
+                                    <div class="request-email">${email}</div>
+                                    <div class="request-time">📅 ${requestTime}</div>
+                                </div>
+                                <div class="request-actions">
+                                    <select id="roleFor_${email.replace(/[@.]/g, '_')}">
+                                        <option value="staff">Staff</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                    <button class="btn-approve" onclick="approveAccessRequest('${email}')">✓ Setujui</button>
+                                    <button class="btn-reject" onclick="rejectAccessRequest('${email}')">✗ Tolak</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const statusText = data.status === 'approved' ? '✓ Disetujui' : '✗ Ditolak';
+                        const statusIcon = data.status === 'approved' ? '🟢' : '🔴';
+                        html += `
+                            <div class="access-request-item ${statusClass}">
+                                <div class="request-info">
+                                    <div class="request-email">${email}</div>
+                                    <div class="request-time">${statusIcon} ${statusText} • ${requestTime}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                listEl.innerHTML = html;
+                updateAccessRequestStats(pendingCount, approvedToday, rejectedToday);
+
+            } catch (error) {
+                console.error('Error loading access requests:', error);
+                listEl.innerHTML = '<p style="text-align:center; color: var(--delete-bg);">Gagal memuat permintaan.</p>';
+            }
+        }
+
+        function updateAccessRequestStats(pending, approved, rejected) {
+            document.getElementById('statPendingRequests').textContent = pending;
+            document.getElementById('statApprovedToday').textContent = approved;
+            document.getElementById('statRejectedToday').textContent = rejected;
+
+            const badge = document.getElementById('pendingRequestsBadge');
+            if (pending > 0) {
+                badge.textContent = pending;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        async function approveAccessRequest(email) {
+            const roleSelectId = `roleFor_${email.replace(/[@.]/g, '_')}`;
+            const roleSelect = document.getElementById(roleSelectId);
+            const role = roleSelect ? roleSelect.value : 'staff';
+
+            try {
+                // Add user to users collection
+                await db.collection('users').doc(email).set({
+                    role: role,
+                    createdAt: new Date(),
+                    createdBy: auth.currentUser?.email || 'localhost',
+                    active: true
+                });
+
+                // Update access request status
+                await db.collection('accessRequests').doc(email).update({
+                    status: 'approved',
+                    assignedRole: role,
+                    reviewedAt: new Date(),
+                    reviewedBy: auth.currentUser?.email || 'localhost'
+                });
+
+                await logAuditAction('user', `Permintaan akses disetujui: ${email} sebagai ${role}`);
+                showMessage(`✅ ${email} disetujui sebagai ${role}`);
+                loadAccessRequests();
+
+            } catch (error) {
+                console.error('Error approving request:', error);
+                showMessage('❌ Gagal menyetujui permintaan');
+            }
+        }
+
+        async function rejectAccessRequest(email) {
+            if (!confirm(`Tolak permintaan akses dari ${email}?`)) return;
+
+            try {
+                await db.collection('accessRequests').doc(email).update({
+                    status: 'rejected',
+                    reviewedAt: new Date(),
+                    reviewedBy: auth.currentUser?.email || 'localhost'
+                });
+
+                await logAuditAction('user', `Permintaan akses ditolak: ${email}`);
+                showMessage(`✗ Permintaan dari ${email} ditolak`);
+                loadAccessRequests();
+
+            } catch (error) {
+                console.error('Error rejecting request:', error);
+                showMessage('❌ Gagal menolak permintaan');
+            }
+        }
+
+        // =====================================================
+        // ENHANCED USER MANAGEMENT
+        // =====================================================
+        let allUsers = [];
+
+        async function loadEnhancedUserList() {
+            const listEl = document.getElementById('userListEnhanced');
+            listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Memuat...</p>';
+
+            try {
+                const snapshot = await db.collection('users').get();
+                allUsers = [];
+                let activeCount = 0, inactiveCount = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allUsers.push({
+                        email: doc.id,
+                        ...data
+                    });
+                    if (data.active !== false) activeCount++;
+                    else inactiveCount++;
+                });
+
+                document.getElementById('statTotalUsers').textContent = allUsers.length;
+                document.getElementById('statActiveUsers').textContent = activeCount;
+                document.getElementById('statInactiveUsers').textContent = inactiveCount;
+
+                renderUserList(allUsers);
+
+            } catch (error) {
+                console.error('Error loading users:', error);
+                listEl.innerHTML = '<p style="text-align:center; color: var(--delete-bg);">Gagal memuat pengguna.</p>';
+            }
+        }
+
+        function renderUserList(users) {
+            const listEl = document.getElementById('userListEnhanced');
+
+            if (users.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <div class="empty-state-text">Tidak ada pengguna</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            users.forEach(user => {
+                const roleLabel = user.role === 'admin' ? '🔑 Admin' : '👤 Staff';
+                const isActive = user.active !== false;
+                const statusClass = isActive ? 'status-active' : 'status-inactive';
+                const statusText = isActive ? 'Aktif' : 'Nonaktif';
+                const avatar = user.email.charAt(0).toUpperCase();
+                const createdAt = user.createdAt?.toDate ?
+                    user.createdAt.toDate().toLocaleDateString('id-ID') : 'Unknown';
+
+                html += `
+                    <div class="user-item-enhanced ${isActive ? '' : 'inactive'}">
+                        <div style="display: flex; align-items: center;">
+                            <div class="user-avatar">${avatar}</div>
+                            <div class="user-details">
+                                <div class="user-name">${user.email}</div>
+                                <div class="user-meta">${roleLabel} • Bergabung: ${createdAt}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="user-status-badge ${statusClass}">${statusText}</span>
+                            <div class="user-item-actions">
+                                <button onclick="changeUserRole('${user.email}', '${user.role === 'admin' ? 'staff' : 'admin'}')" style="background-color: var(--accent-color); padding: 6px 10px;">
+                                    ${user.role === 'admin' ? '👤' : '🔑'}
+                                </button>
+                                <button onclick="toggleUserStatus('${user.email}', ${!isActive})" style="background-color: ${isActive ? '#ffc107' : '#28a745'}; padding: 6px 10px;">
+                                    ${isActive ? '🔒' : '🔓'}
+                                </button>
+                                <button onclick="viewUserActivity('${user.email}')" style="background-color: var(--text-secondary); padding: 6px 10px;">
+                                    📋
+                                </button>
+                                <button onclick="deleteUser('${user.email}')" class="btn-delete" style="padding: 6px 10px;">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+            const filtered = allUsers.filter(user =>
+                user.email.toLowerCase().includes(searchTerm) ||
+                user.role.toLowerCase().includes(searchTerm)
+            );
+            renderUserList(filtered);
+        }
+
+        async function toggleUserStatus(email, active) {
+            try {
+                await db.collection('users').doc(email).update({ active: active });
+                await logAuditAction('user', `Status pengguna diubah: ${email} → ${active ? 'Aktif' : 'Nonaktif'}`);
+                showMessage(`✅ ${email} ${active ? 'diaktifkan' : 'dinonaktifkan'}`);
+                loadEnhancedUserList();
+            } catch (error) {
+                console.error('Error toggling user status:', error);
+                showMessage('❌ Gagal mengubah status pengguna');
+            }
+        }
+
+        async function viewUserActivity(email) {
+            const logs = await getAuditLogForUser(email);
+            let html = `<h3>📋 Aktivitas ${email}</h3><div class="audit-log-list" style="max-height: 300px;">`;
+
+            if (logs.length === 0) {
+                html += '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Tidak ada aktivitas tercatat</p>';
+            } else {
+                logs.forEach(log => {
+                    html += `
+                        <div class="audit-log-item">
+                            <div class="audit-icon action-${log.type}">
+                                ${log.type === 'login' ? '🔐' : log.type === 'user' ? '👤' : '⚙️'}
+                            </div>
+                            <div class="audit-content">
+                                <div class="audit-action">${log.action}</div>
+                                <div class="audit-time">${log.timestamp?.toDate ? log.timestamp.toDate().toLocaleString('id-ID') : ''}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += '</div>';
+
+            alert('Fitur Riwayat Aktivitas: Lihat di tab Audit Log dengan filter email');
+        }
+
+        // =====================================================
+        // ROLE MANAGEMENT
+        // =====================================================
+        async function loadCustomRoles() {
+            const listEl = document.getElementById('customRolesList');
+
+            try {
+                const snapshot = await db.collection('customRoles').get();
+
+                if (snapshot.empty) {
+                    listEl.innerHTML = '';
+                    return;
+                }
+
+                let html = '<h3 style="margin: 20px 0 15px 0;">🎨 Role Kustom</h3>';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const permissions = data.permissions || [];
+
+                    html += `
+                        <div class="role-card">
+                            <div class="role-header">
+                                <span class="role-name">🏷️ ${data.name}</span>
+                                <span class="role-type-badge role-custom">Kustom</span>
+                            </div>
+                            <div class="permission-list">
+                                ${permissions.map(p => `<span class="permission-tag granted">${p}</span>`).join('')}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <button onclick="deleteCustomRole('${doc.id}')" class="btn-delete" style="padding: 6px 12px; font-size: 12px;">🗑️ Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                listEl.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading custom roles:', error);
+            }
+        }
+
+        async function createCustomRole() {
+            const name = document.getElementById('newRoleName').value.trim();
+            if (!name) {
+                showMessage('❌ Nama role tidak boleh kosong');
+                return;
+            }
+
+            const permissions = [];
+            if (document.getElementById('perm_inputData').checked) permissions.push('Input Data');
+            if (document.getElementById('perm_editOldData').checked) permissions.push('Edit Data Lama');
+            if (document.getElementById('perm_viewReports').checked) permissions.push('Lihat Laporan');
+            if (document.getElementById('perm_exportData').checked) permissions.push('Export Data');
+
+            try {
+                await db.collection('customRoles').add({
+                    name: name,
+                    permissions: permissions,
+                    createdAt: new Date(),
+                    createdBy: auth.currentUser?.email || 'localhost'
+                });
+
+                await logAuditAction('config', `Role kustom dibuat: ${name}`);
+                document.getElementById('newRoleName').value = '';
+                showMessage(`✅ Role "${name}" berhasil dibuat`);
+                loadCustomRoles();
+
+            } catch (error) {
+                console.error('Error creating role:', error);
+                showMessage('❌ Gagal membuat role');
+            }
+        }
+
+        async function deleteCustomRole(roleId) {
+            if (!confirm('Yakin ingin menghapus role ini?')) return;
+
+            try {
+                await db.collection('customRoles').doc(roleId).delete();
+                await logAuditAction('config', `Role kustom dihapus: ${roleId}`);
+                showMessage('✅ Role berhasil dihapus');
+                loadCustomRoles();
+            } catch (error) {
+                console.error('Error deleting role:', error);
+                showMessage('❌ Gagal menghapus role');
+            }
+        }
+
+        // =====================================================
+        // AUDIT LOG SYSTEM
+        // =====================================================
+        let allAuditLogs = [];
+
+        async function logAuditAction(type, action, details = null) {
+            if (!systemConfig.auditLogging && !isDevMode) return;
+
+            try {
+                await db.collection('auditLogs').add({
+                    type: type,
+                    action: action,
+                    details: details,
+                    userId: auth.currentUser?.email || 'localhost',
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                console.error('Error logging audit action:', error);
+            }
+        }
+
+        async function loadAuditLog() {
+            const listEl = document.getElementById('auditLogList');
+            listEl.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Memuat...</p>';
+
+            try {
+                const snapshot = await db.collection('auditLogs')
+                    .orderBy('timestamp', 'desc')
+                    .limit(100)
+                    .get();
+
+                allAuditLogs = [];
+                snapshot.forEach(doc => {
+                    allAuditLogs.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderAuditLog(allAuditLogs);
+
+            } catch (error) {
+                console.error('Error loading audit log:', error);
+                listEl.innerHTML = '<p style="text-align:center; color: var(--delete-bg);">Gagal memuat log.</p>';
+            }
+        }
+
+        function renderAuditLog(logs) {
+            const listEl = document.getElementById('auditLogList');
+
+            if (logs.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">Tidak ada log aktivitas</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            logs.forEach(log => {
+                const icon = log.type === 'login' ? '🔐' :
+                    log.type === 'user' ? '👤' :
+                        log.type === 'config' ? '⚙️' : '🔒';
+                const time = log.timestamp?.toDate ?
+                    log.timestamp.toDate().toLocaleString('id-ID') : 'Unknown';
+
+                html += `
+                    <div class="audit-log-item">
+                        <div class="audit-icon action-${log.type}">${icon}</div>
+                        <div class="audit-content">
+                            <div class="audit-action">${log.action}</div>
+                            <div class="audit-details">${log.userId}</div>
+                        </div>
+                        <div class="audit-time">${time}</div>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        function filterAuditLog() {
+            const searchTerm = document.getElementById('auditSearchInput').value.toLowerCase();
+            const filterType = document.getElementById('auditFilterType').value;
+
+            const filtered = allAuditLogs.filter(log => {
+                const matchesSearch = log.action.toLowerCase().includes(searchTerm) ||
+                    log.userId?.toLowerCase().includes(searchTerm);
+                const matchesType = filterType === 'all' || log.type === filterType;
+                return matchesSearch && matchesType;
+            });
+
+            renderAuditLog(filtered);
+        }
+
+        async function getAuditLogForUser(email) {
+            try {
+                const snapshot = await db.collection('auditLogs')
+                    .where('userId', '==', email)
+                    .orderBy('timestamp', 'desc')
+                    .limit(20)
+                    .get();
+
+                const logs = [];
+                snapshot.forEach(doc => logs.push(doc.data()));
+                return logs;
+            } catch (error) {
+                console.error('Error getting user audit log:', error);
+                return [];
+            }
+        }
+
+        function exportAuditLog() {
+            const text = JSON.stringify(allAuditLogs, null, 2);
+            navigator.clipboard.writeText(text)
+                .then(() => showMessage('📋 Log berhasil disalin'))
+                .catch(() => showMessage('❌ Gagal menyalin log'));
+        }
+
+        async function clearAuditLog() {
+            if (!confirm('Yakin ingin menghapus log lama (lebih dari 30 hari)?')) return;
+
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            try {
+                const snapshot = await db.collection('auditLogs')
+                    .where('timestamp', '<', thirtyDaysAgo)
+                    .get();
+
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                showMessage(`✅ ${snapshot.size} log lama dihapus`);
+                loadAuditLog();
+            } catch (error) {
+                console.error('Error clearing audit log:', error);
+                showMessage('❌ Gagal menghapus log');
+            }
+        }
+
+        // =====================================================
+        // TAB NAVIGATION
+        // =====================================================
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[onclick*="${tabName}"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Load data for the selected tab
+            switch (tabName) {
+                case 'accessRequests':
+                    loadAccessRequests();
+                    break;
+                case 'userManagement':
+                    loadEnhancedUserList();
+                    break;
+                case 'roleManagement':
+                    loadCustomRoles();
+                    break;
+                case 'systemConfig':
+                    loadSystemConfig();
+                    break;
+                case 'auditLog':
+                    loadAuditLog();
+                    break;
+            }
+        }
+
+
+        // =====================================================
+        // SISTEM PROTEKSI DATA (UNSAVED CHANGES)
+        // =====================================================
+        let isDirty = false;
+
+        function setDirty(dirty) {
+            isDirty = dirty;
+            updateSaveButtonState();
+        }
+
+        function updateSaveButtonState() {
+            const saveBtn = document.getElementById('saveBtn');
+            if (isDirty) {
+                saveBtn.classList.add('unsaved');
+                saveBtn.title = '⚠️ Ada perubahan belum disimpan! Klik untuk simpan.';
+            } else {
+                saveBtn.classList.remove('unsaved');
+                saveBtn.title = 'Simpan Data';
+            }
+        }
+
+        // Browser beforeunload protection
+        window.addEventListener('beforeunload', function (e) {
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = 'Perubahan yang Anda buat mungkin tidak disimpan.';
+                return e.returnValue;
+            }
+        });
+
+        // Back button protection (for mobile)
+        window.addEventListener('popstate', function (e) {
+            if (isDirty) {
+                if (!confirm('Perubahan yang Anda buat mungkin tidak disimpan. Yakin ingin keluar?')) {
+                    history.pushState(null, '', window.location.href);
+                }
+            }
+        });
+
+        // Push initial state for back button protection
+        history.pushState(null, '', window.location.href);
+
+        // =====================================================
+        // SISTEM HAK AKSES & ROLE
+        // =====================================================
+        let currentUserRole = null; // 'superadmin', 'admin', 'staff', atau null
+        let adminModeEnabled = false;
+
+        async function checkUserRole(email) {
+            // Check if super admin
+            if (email === SUPER_ADMIN_EMAIL) {
+                return 'superadmin';
+            }
+
+            // Check from Firebase
+            try {
+                const doc = await db.collection('users').doc(email).get();
+                if (doc.exists) {
+                    return doc.data().role || 'staff';
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+            }
+
+            return null; // Not registered
+        }
+
+        function updateUIForRole() {
+            const adminModeSection = document.getElementById('adminModeSection');
+            const userManagementSection = document.getElementById('userManagementSection');
+            const userRoleBadge = document.getElementById('userRoleBadge');
+
+            // Reset
+            adminModeSection.style.display = 'none';
+            userManagementSection.style.display = 'none';
+            userRoleBadge.innerHTML = '';
+
+            if (!currentUserRole) return;
+
+            // Show role badge
+            let badgeClass = '';
+            let badgeText = '';
+
+            switch (currentUserRole) {
+                case 'superadmin':
+                    badgeClass = 'badge-superadmin';
+                    badgeText = '👑 Super Admin';
+                    adminModeSection.style.display = 'block';
+                    userManagementSection.style.display = 'block';
+                    break;
+                case 'admin':
+                    badgeClass = 'badge-admin';
+                    badgeText = '🔑 Admin';
+                    adminModeSection.style.display = 'block';
+                    break;
+                case 'staff':
+                    badgeClass = 'badge-staff';
+                    badgeText = '👤 Staff';
+                    break;
+            }
+
+            userRoleBadge.innerHTML = `<span class="user-role-badge ${badgeClass}">${badgeText}</span>`;
+        }
+
+        function toggleAdminMode() {
+            if (currentUserRole !== 'superadmin' && currentUserRole !== 'admin') return;
+
+            adminModeEnabled = !adminModeEnabled;
+            const toggle = document.getElementById('adminModeToggle');
+            toggle.classList.toggle('active', adminModeEnabled);
+
+            applyLockingLogic();
+
+            showMessage(adminModeEnabled ? '🔓 Mode Admin: Semua sel bisa diedit' : '🔒 Mode Normal: Sel lama terkunci');
+        }
+
+        // =====================================================
+        // SISTEM PENGUNCIAN SEL (AUTO-LOCK)
+        // =====================================================
+        function applyLockingLogic() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const today = new Date();
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth();
+            const todayDate = today.getDate();
+
+            const rows = document.getElementById('tableBody').rows;
+            const isPastMonth = (year < todayYear) || (year === todayYear && month < todayMonth);
+            const isCurrentMonth = (year === todayYear && month === todayMonth);
+
+            for (let i = 0; i < rows.length - 1; i++) {
+                const row = rows[i];
+                const dayOfMonth = i + 1;
+                const inputs = row.querySelectorAll('input:not([readonly])');
+
+                let shouldLock = false;
+
+                if (adminModeEnabled && (currentUserRole === 'superadmin' || currentUserRole === 'admin')) {
+                    // Admin mode: unlock all
+                    shouldLock = false;
+                } else if (isPastMonth) {
+                    // Past month: lock all
+                    shouldLock = true;
+                } else if (isCurrentMonth) {
+                    if (currentUserRole === 'staff') {
+                        // Staff: only today and yesterday editable
+                        const isToday = dayOfMonth === todayDate;
+                        const isYesterday = dayOfMonth === (todayDate - 1);
+                        shouldLock = !(isToday || isYesterday);
+                    } else if (currentUserRole === 'admin' || currentUserRole === 'superadmin') {
+                        // Admin/SuperAdmin without admin mode: lock past days
+                        shouldLock = dayOfMonth < todayDate;
+                    } else {
+                        // No role (guest/unregistered): lock all
+                        shouldLock = true;
+                    }
+                } else {
+                    // Future month: don't lock (allow input)
+                    shouldLock = false;
+                }
+
+                inputs.forEach(input => {
+                    if (shouldLock) {
+                        input.setAttribute('readonly', true);
+                        input.classList.add('locked-cell');
+                    } else {
+                        input.removeAttribute('readonly');
+                        input.classList.remove('locked-cell');
+                    }
+                });
+            }
+        }
+
+        // =====================================================
+        // USER MANAGEMENT (SUPER ADMIN ONLY)
+        // =====================================================
+        async function loadUserList() {
+            if (currentUserRole !== 'superadmin') return;
+
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Memuat...</p>';
+
+            try {
+                const snapshot = await db.collection('users').get();
+
+                if (snapshot.empty) {
+                    userList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Belum ada pengguna terdaftar.</p>';
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const email = doc.id;
+                    const role = data.role || 'staff';
+                    const roleLabel = role === 'admin' ? '🔑 Admin' : '👤 Staff';
+
+                    html += `
+                        <div class="user-item">
+                            <div class="user-item-info">
+                                <div class="user-item-email">${email}</div>
+                                <div class="user-item-role">${roleLabel}</div>
+                            </div>
+                            <div class="user-item-actions">
+                                <button onclick="changeUserRole('${email}', '${role === 'admin' ? 'staff' : 'admin'}')" style="background-color: var(--accent-color);">
+                                    ${role === 'admin' ? '👤' : '🔑'}
+                                </button>
+                                <button onclick="deleteUser('${email}')" class="btn-delete">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                userList.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading users:', error);
+                userList.innerHTML = '<p style="text-align:center; color: var(--delete-bg);">Gagal memuat pengguna.</p>';
+            }
+        }
+
+        async function addNewUser() {
+            if (currentUserRole !== 'superadmin') return;
+
+            const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+            const role = document.getElementById('newUserRole').value;
+
+            if (!email) {
+                showMessage('❌ Email tidak boleh kosong');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showMessage('❌ Format email tidak valid');
+                return;
+            }
+
+            if (email === SUPER_ADMIN_EMAIL) {
+                showMessage('❌ Email Super Admin tidak bisa ditambahkan');
+                return;
+            }
+
+            showLoading('Menambahkan pengguna...');
+
+            try {
+                await db.collection('users').doc(email).set({
+                    role: role,
+                    createdAt: new Date(),
+                    createdBy: auth.currentUser.email
+                });
+
+                document.getElementById('newUserEmail').value = '';
+                await loadUserList();
+                showMessage(`✅ Pengguna ${email} berhasil ditambahkan sebagai ${role}`);
+            } catch (error) {
+                console.error('Error adding user:', error);
+                showMessage('❌ Gagal menambahkan pengguna: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function changeUserRole(email, newRole) {
+            if (currentUserRole !== 'superadmin') return;
+
+            try {
+                await db.collection('users').doc(email).update({ role: newRole });
+                await loadUserList();
+                showMessage(`✅ Role ${email} diubah menjadi ${newRole}`);
+            } catch (error) {
+                console.error('Error changing role:', error);
+                showMessage('❌ Gagal mengubah role');
+            }
+        }
+
+        async function deleteUser(email) {
+            if (currentUserRole !== 'superadmin') return;
+
+            if (!confirm(`Yakin ingin menghapus akses untuk ${email}?`)) return;
+
+            try {
+                await db.collection('users').doc(email).delete();
+                await loadUserList();
+                showMessage(`✅ Pengguna ${email} berhasil dihapus`);
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showMessage('❌ Gagal menghapus pengguna');
+            }
+        }
+
+        function openUserManagementModal() {
+            if (currentUserRole !== 'superadmin') return;
+            toggleSettingsModal();
+            document.getElementById('userManagementModal').classList.add('show');
+            loadUserList();
+        }
+
+        function closeUserManagementModal() {
+            document.getElementById('userManagementModal').classList.remove('show');
+        }
+
+        // =====================================================
+        // SISTEM CACHE DATA - INTI EFISIENSI
+        // =====================================================
+        const DataCache = {
+            _cache: new Map(),
+            _pendingRequests: new Map(),
+
+            _key(year, month) {
+                return `${year}_${month}`;
+            },
+
+            get(year, month) {
+                return this._cache.get(this._key(year, month));
+            },
+
+            set(year, month, data) {
+                this._cache.set(this._key(year, month), {
+                    data: data,
+                    timestamp: Date.now()
+                });
+            },
+
+            invalidate(year, month) {
+                this._cache.delete(this._key(year, month));
+            },
+
+            clear() {
+                this._cache.clear();
+                this._pendingRequests.clear();
+            },
+
+            has(year, month) {
+                return this._cache.has(this._key(year, month));
+            },
+
+            async fetch(year, month, forceRefresh = false) {
+                const key = this._key(year, month);
+
+                if (!forceRefresh && this._cache.has(key)) {
+                    return this._cache.get(key).data;
+                }
+
+                if (this._pendingRequests.has(key)) {
+                    return this._pendingRequests.get(key);
+                }
+
+                const requestPromise = this._fetchFromServer(year, month);
+                this._pendingRequests.set(key, requestPromise);
+
+                try {
+                    const data = await requestPromise;
+                    this.set(year, month, data);
+                    return data;
+                } finally {
+                    this._pendingRequests.delete(key);
+                }
+            },
+
+            async _fetchFromServer(year, month) {
+                if (!auth.currentUser) return null;
+
+                const docId = `salesData_${year}_${month}`;
+                try {
+                    const doc = await db.collection("salesReports").doc(docId).get();
+                    return doc.exists ? doc.data().data : null;
+                } catch (error) {
+                    console.error(`Error fetching ${docId}:`, error);
+                    throw error;
+                }
+            },
+
+            async prefetchPreviousMonth(year, month) {
+                const prevYear = month === 0 ? year - 1 : year;
+                const prevMonth = month === 0 ? 11 : month - 1;
+
+                if (!this.has(prevYear, prevMonth)) {
+                    try {
+                        await this.fetch(prevYear, prevMonth);
+                    } catch (e) {
+                        // Data bulan lalu opsional
+                    }
+                }
+            }
+        };
+
+        // =====================================================
+        // VARIABEL GLOBAL
+        // =====================================================
+        let currentDate = new Date();
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let selectedRowIndex = null;
+        let isLoading = false;
+        let currentLoadId = 0;
+
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        const DEFAULT_REPORT_TEMPLATE = `LAPORAN HARIAN
+TOKO    : FWYJ PERMATA ROYAL
+TGL  SALES :{tglSales}
+
+✅ SALES HARIAN
+sift  : sales net/std
+Sift 1 : {salesS1}/{strukS1}
+Sift 2 : {salesS2}/{strukS2}
+
+TOTAL NET = {totalNet}
+TOTAL STRUK : {totalStruk}
+AKM SALES : {akmSales}
+AKM STRUK : {akmStruk}
+
+✅ SALES LALU
+NET SALES : {prev_totalNet}
+TOTAL STRUK : {prev_totalStruk}
+SPD LALU : {prev_spd}
+STD LALU  : {prev_std}
+
+✅ SPD
+SPD NOW : {spd}
+SPD LALU  : {prev_spd}
+GROWTH VS LALU : {growthSpd}
+
+✅ STD
+STD NOW : {std}
+STD LALU : {prev_std}
+GROWTH VS LALU : {growthStd}
+
+✅ APC
+APC NOW : {apc}
+APC LALU : {prev_apc}
+GROWTH VS LALU : {growthApc}`;
+
+        const REPORT_PLACEHOLDERS = [
+            'tglSales', 'salesS1', 'salesS2', 'totalNet', 'akmSales', 'spd', 'growthSpd',
+            'strukS1', 'strukS2', 'totalStruk', 'akmStruk', 'std', 'growthStd', 'apc', 'growthApc',
+            'prev_totalNet', 'prev_totalStruk', 'prev_spd', 'prev_std', 'prev_apc'
+        ];
+
+        // =====================================================
+        // FUNGSI LOADING & UI
+        // =====================================================
+        function showLoading(text = 'Memuat data...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('show');
+            setNavigationEnabled(false);
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+            setNavigationEnabled(true);
+        }
+
+        function setNavigationEnabled(enabled) {
+            document.getElementById('btnPrev').disabled = !enabled;
+            document.getElementById('btnNext').disabled = !enabled;
+        }
+
+        function updateCacheStatus(status) {
+            const el = document.getElementById('cacheStatus');
+            el.className = 'cache-status ' + status;
+            el.title = status === 'synced' ? 'Data tersinkronisasi' :
+                status === 'pending' ? 'Menunggu sinkronisasi' :
+                    status === 'error' ? 'Error sinkronisasi' : 'Status tidak diketahui';
+        }
+
+        function showMessage(text) {
+            const existingMsg = document.querySelector('.status-message');
+            if (existingMsg) existingMsg.remove();
+
+            const msg = document.createElement('div');
+            msg.className = 'status-message';
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2500);
+        }
+
+        // =====================================================
+        // FUNGSI UTILITAS
+        // =====================================================
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function formatDate(date) {
+            const day = dayNames[date.getDay()];
+            const dateNum = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}, ${dateNum}/${month}/${year}`;
+        }
+
+        function isWeekend(date) {
+            const day = date.getDay();
+            return day === 0 || day === 6;
+        }
+
+        function formatNumber(num) {
+            if (!num || num === 0) return '';
+            return Math.round(num).toLocaleString('en-US');
+        }
+
+        function parseNumber(str) {
+            if (!str) return 0;
+            return parseFloat(str.toString().replace(/,/g, '')) || 0;
+        }
+
+        function formatInputValue(input) {
+            let cursorPos = input.selectionStart;
+            let oldLength = input.value.length;
+            let numericValue = input.value.replace(/[^\d]/g, '');
+            if (numericValue === '') { input.value = ''; return; }
+            let formattedValue = parseInt(numericValue).toLocaleString('en-US');
+            input.value = formattedValue;
+            let newLength = formattedValue.length;
+            input.setSelectionRange(cursorPos + (newLength - oldLength), cursorPos + (newLength - oldLength));
+        }
+
+        function formatGrowth(growth) {
+            if (isNaN(growth) || !isFinite(growth)) return '';
+            return growth.toFixed(2) + '%';
+        }
+
+        function applyGrowthColor(input, value) {
+            input.classList.remove('growth-positive', 'growth-negative');
+            if (value > 0) input.classList.add('growth-positive');
+            else if (value < 0) input.classList.add('growth-negative');
+        }
+
+        // =====================================================
+        // TEMA
+        // =====================================================
+        function initTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            updateThemeButton();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeButton();
+            showMessage('Tema berhasil diubah');
+        }
+
+        function updateThemeButton() {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (currentTheme === 'dark') {
+                icon.textContent = '☀️'; text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙'; text.textContent = 'Dark';
+            }
+        }
+
+        // =====================================================
+        // NAVIGASI BULAN - DENGAN PROTEKSI
+        // =====================================================
+        async function changeMonth(delta) {
+            if (isLoading) return;
+
+            // Check for unsaved changes
+            if (isDirty) {
+                if (!confirm('Ada perubahan yang belum disimpan. Yakin ingin pindah bulan?')) {
+                    return;
+                }
+            }
+
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            setDirty(false);
+            await initializeMonth();
+        }
+
+        async function resetToCurrentMonth() {
+            if (isLoading) return;
+
+            const today = new Date();
+            if (currentDate.getFullYear() === today.getFullYear() && currentDate.getMonth() === today.getMonth()) {
+                scrollToToday(true);
+            } else {
+                if (isDirty) {
+                    if (!confirm('Ada perubahan yang belum disimpan. Yakin ingin pindah?')) {
+                        return;
+                    }
+                }
+                currentDate = today;
+                setDirty(false);
+                await initializeMonth();
+            }
+            showMessage('Kembali ke hari ini');
+        }
+
+        // =====================================================
+        // INISIALISASI BULAN - FUNGSI UTAMA
+        // =====================================================
+        async function initializeMonth() {
+            const loadId = ++currentLoadId;
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            showLoading('Memuat data...');
+            updateCacheStatus('pending');
+
+            try {
+                generateTableStructure();
+
+                const prefetchPromise = DataCache.prefetchPreviousMonth(year, month);
+                const currentData = await DataCache.fetch(year, month);
+
+                if (loadId !== currentLoadId) {
+                    console.log('Load cancelled - month changed');
+                    return;
+                }
+
+                await prefetchPromise;
+
+                if (currentData) {
+                    populateTableData(currentData);
+                }
+
+                calculateAllRows();
+                updateSummary();
+                applyLockingLogic();
+
+                updateCacheStatus('synced');
+                scrollToToday();
+
+            } catch (error) {
+                console.error('Error initializing month:', error);
+                updateCacheStatus('error');
+                showMessage('❌ Gagal memuat data: ' + error.message);
+            } finally {
+                if (loadId === currentLoadId) {
+                    hideLoading();
+                }
+            }
+        }
+
+        // =====================================================
+        // GENERATE TABEL (TANPA DATA)
+        // =====================================================
+        function generateTableStructure() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = getDaysInMonth(year, month);
+
+            document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+            document.getElementById('dayCount').textContent = `${daysInMonth} hari`;
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            deselectAllRows();
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const row = document.createElement('tr');
+                row.dataset.rowindex = day - 1;
+                if (isWeekend(date)) row.classList.add('weekend');
+
+                row.innerHTML = `
+                    <td class="number-cell">${day}</td>
+                    <td class="date-cell">${formatDate(date)}</td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="0"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="1"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="2"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="3"></td>
+                    <td><input type="text" readonly data-row="${day - 1}" data-input="4"></td>
+                    <td><input type="text" readonly data-row="${day - 1}" data-input="5"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="6"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="7"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="8"></td>
+                    <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="9"></td>
+                    <td><input type="text" readonly data-row="${day - 1}" data-input="10"></td>
+                    <td><input type="text" readonly data-row="${day - 1}" data-input="11"></td>
+                    <td><input type="text" readonly data-row="${day - 1}" data-input="12"></td>
+                    <td><input type="text" readonly data-row="${day - 1}" data-input="13"></td>
+                `;
+                tbody.appendChild(row);
+
+                row.cells[0].onclick = () => selectRow(day - 1);
+                row.cells[1].onclick = () => selectRow(day - 1);
+
+                const inputs = row.getElementsByTagName('input');
+                setupInputEventListeners(inputs, day - 1, daysInMonth);
+            }
+
+            addSummaryRow();
+        }
+
+        function setupInputEventListeners(inputs, rowIndex, totalDays) {
+            // Shift inputs (0, 1, 6, 7)
+            [0, 1, 6, 7].forEach(index => {
+                const input = inputs[index];
+                setupEnterNavigation(input, rowIndex, index, totalDays);
+                input.addEventListener('input', function () {
+                    formatInputValue(this);
+                    const totalInput = inputs[(index <= 1) ? 2 : 8];
+                    delete totalInput.dataset.manual;
+                    totalInput.classList.remove('manual-override');
+                    handleRowChange(rowIndex);
+                    setDirty(true); // Mark as dirty
+                });
+                if (index === 0 || index === 1) {
+                    input.addEventListener('blur', function () { checkUnreasonableValue(this); });
+                }
+            });
+
+            // Total & AKM inputs (2, 3, 8, 9)
+            [2, 8, 3, 9].forEach(index => {
+                const input = inputs[index];
+                if (index === 2 || index === 8) {
+                    setupTotalEnterJump(input, rowIndex, index, totalDays);
+                }
+                input.addEventListener('input', function () {
+                    formatInputValue(this);
+                    const hasValue = this.value.trim() !== '';
+                    this.dataset.manual = hasValue ? 'true' : 'false';
+                    this.classList.toggle('manual-override', hasValue);
+
+                    if ((index === 2 || index === 8) && hasValue) {
+                        const totalVal = parseNumber(this.value);
+                        const half = Math.floor(totalVal / 2);
+                        const remainder = totalVal - half;
+                        if (index === 2) {
+                            inputs[0].value = formatNumber(half);
+                            inputs[1].value = formatNumber(remainder);
+                        } else {
+                            inputs[6].value = formatNumber(half);
+                            inputs[7].value = formatNumber(remainder);
+                        }
+                    }
+                    handleRowChange(rowIndex);
+                    setDirty(true); // Mark as dirty
+                });
+            });
+        }
+
+        function setupEnterNavigation(input, rowIndex, inputIndex, totalRows) {
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const rows = document.getElementById('tableBody').rows;
+                    const navOrder = [0, 1, 6, 7];
+                    const currentPos = navOrder.indexOf(inputIndex);
+                    let nextInput = null;
+
+                    if (currentPos !== -1 && currentPos < navOrder.length - 1) {
+                        nextInput = rows[rowIndex].getElementsByTagName('input')[navOrder[currentPos + 1]];
+                    } else if (rowIndex + 1 < totalRows) {
+                        nextInput = rows[rowIndex + 1].getElementsByTagName('input')[navOrder[0]];
+                    }
+                    if (nextInput && !nextInput.hasAttribute('readonly')) {
+                        nextInput.focus();
+                        nextInput.select();
+                    }
+                }
+            });
+        }
+
+        function setupTotalEnterJump(input, rowIndex, inputIndex, totalRows) {
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (rowIndex + 1 < totalRows) {
+                        const nextInput = document.getElementById('tableBody').rows[rowIndex + 1].getElementsByTagName('input')[inputIndex];
+                        if (nextInput && !nextInput.hasAttribute('readonly')) {
+                            nextInput.focus();
+                            nextInput.select();
+                        }
+                    }
+                }
+            });
+        }
+
+        function checkUnreasonableValue(inputElement) {
+            const value = parseNumber(inputElement.value);
+            if (value === 0) return;
+            if (value < 1000000 || value > 10000000) {
+                if (!confirm(`⚠️ Angka yang kamu input (${inputElement.value}) tampaknya tidak wajar. Yakin data sudah benar?`)) {
+                    setTimeout(() => { inputElement.focus(); inputElement.select(); }, 0);
+                }
+            }
+        }
+
+        // =====================================================
+        // POPULATE DATA KE TABEL
+        // =====================================================
+        function populateTableData(data) {
+            if (!data || !Array.isArray(data)) return;
+
+            const rows = document.getElementById('tableBody').rows;
+
+            for (let i = 0; i < data.length && i < rows.length - 1; i++) {
+                const d = data[i];
+                if (!d) continue;
+
+                const inputs = rows[i].getElementsByTagName('input');
+
+                inputs[0].value = formatNumber(d.s1);
+                inputs[1].value = formatNumber(d.s2);
+                inputs[6].value = formatNumber(d.st1);
+                inputs[7].value = formatNumber(d.st2);
+
+                inputs[2].value = formatNumber(d.totalNet);
+                inputs[3].value = formatNumber(d.akmSales);
+                inputs[4].value = formatNumber(d.spd);
+                inputs[8].value = formatNumber(d.totalStruk);
+                inputs[9].value = formatNumber(d.akmStruk);
+                inputs[10].value = formatNumber(d.std);
+                inputs[12].value = formatNumber(d.apc);
+
+                if (d.m_total) {
+                    inputs[2].dataset.manual = 'true';
+                    inputs[2].classList.add('manual-override');
+                }
+                if (d.m_akmS) {
+                    inputs[3].dataset.manual = 'true';
+                    inputs[3].classList.add('manual-override');
+                }
+                if (d.m_totalSt) {
+                    inputs[8].dataset.manual = 'true';
+                    inputs[8].classList.add('manual-override');
+                }
+                if (d.m_akmSt) {
+                    inputs[9].dataset.manual = 'true';
+                    inputs[9].classList.add('manual-override');
+                }
+            }
+        }
+
+        // =====================================================
+        // KALKULASI BARIS
+        // =====================================================
+        function handleRowChange(startRowIndex) {
+            const totalRows = document.getElementById('tableBody').rows.length - 1;
+            for (let i = startRowIndex; i < totalRows; i++) {
+                calculateRow(i);
+            }
+            updateSummary();
+        }
+
+        function calculateAllRows() {
+            const rows = document.getElementById('tableBody').rows;
+            for (let i = 0; i < rows.length - 1; i++) {
+                calculateRow(i);
+            }
+        }
+
+        function calculateRow(rowIndex) {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const rows = document.getElementById('tableBody').rows;
+            const row = rows[rowIndex];
+            if (!row || row.classList.contains('summary')) return;
+
+            const inputs = row.getElementsByTagName('input');
+
+            const penjualanShift1 = parseNumber(inputs[0].value);
+            const penjualanShift2 = parseNumber(inputs[1].value);
+
+            if (inputs[2].dataset.manual !== 'true') {
+                inputs[2].value = formatNumber(penjualanShift1 + penjualanShift2);
+            }
+            const totalPenjualan = parseNumber(inputs[2].value);
+
+            if (inputs[3].dataset.manual !== 'true') {
+                const prevAkm = rowIndex > 0 ? parseNumber(rows[rowIndex - 1].getElementsByTagName('input')[3].value) : 0;
+                inputs[3].value = formatNumber(totalPenjualan + prevAkm);
+            }
+            const akmSales = parseNumber(inputs[3].value);
+            const spd = akmSales / (rowIndex + 1);
+            inputs[4].value = formatNumber(spd);
+
+            const strukShift1 = parseNumber(inputs[6].value);
+            const strukShift2 = parseNumber(inputs[7].value);
+
+            if (inputs[8].dataset.manual !== 'true') {
+                inputs[8].value = formatNumber(strukShift1 + strukShift2);
+            }
+            const totalStruk = parseNumber(inputs[8].value);
+
+            if (inputs[9].dataset.manual !== 'true') {
+                const prevAkm = rowIndex > 0 ? parseNumber(rows[rowIndex - 1].getElementsByTagName('input')[9].value) : 0;
+                inputs[9].value = formatNumber(totalStruk + prevAkm);
+            }
+            const akmStruk = parseNumber(inputs[9].value);
+            const std = akmStruk / (rowIndex + 1);
+            inputs[10].value = formatNumber(Math.floor(std));
+
+            const apc = (spd > 0 && std > 0) ? (spd / std) : 0;
+            inputs[12].value = formatNumber(apc);
+
+            inputs[5].value = '';
+            inputs[11].value = '';
+            inputs[13].value = '';
+
+            const prevYear = month === 0 ? year - 1 : year;
+            const prevMonth = month === 0 ? 11 : month - 1;
+
+            const cachedPrevMonth = DataCache.get(prevYear, prevMonth);
+
+            if (cachedPrevMonth && cachedPrevMonth.data && cachedPrevMonth.data[rowIndex]) {
+                const prevDayData = cachedPrevMonth.data[rowIndex];
+                const prevSpd = prevDayData.spd || 0;
+                const prevStd = prevDayData.std || 0;
+                const prevApc = prevDayData.apc || 0;
+
+                if (spd > 0 && prevSpd > 0) {
+                    const growth = ((spd / prevSpd) - 1) * 100;
+                    inputs[5].value = formatGrowth(growth);
+                    applyGrowthColor(inputs[5], growth);
+                }
+
+                if (std > 0 && prevStd > 0) {
+                    const growth = ((std / prevStd) - 1) * 100;
+                    inputs[11].value = formatGrowth(growth);
+                    applyGrowthColor(inputs[11], growth);
+                }
+
+                if (apc > 0 && prevApc > 0) {
+                    const growth = ((apc / prevApc) - 1) * 100;
+                    inputs[13].value = formatGrowth(growth);
+                    applyGrowthColor(inputs[13], growth);
+                }
+            }
+        }
+
+        function addSummaryRow() {
+            const row = document.getElementById('tableBody').insertRow();
+            row.className = 'summary';
+            row.innerHTML = `
+                <td colspan="2">TOTAL / RATA-RATA</td>
+                <td id="sumShift1Penjualan">-</td>
+                <td id="sumShift2Penjualan">-</td>
+                <td id="totalPenjualan">-</td>
+                <td>-</td><td>-</td><td>-</td>
+                <td id="sumShift1Struk">-</td>
+                <td id="sumShift2Struk">-</td>
+                <td id="totalStruk">-</td>
+                <td>-</td><td>-</td><td>-</td>
+                <td id="avgAPC">-</td>
+                <td>-</td>
+            `;
+        }
+
+        function updateSummary() {
+            const rows = document.getElementById('tableBody').rows;
+            let sumS1P = 0, sumS2P = 0, sumS1S = 0, sumS2S = 0, totalA = 0, countA = 0;
+
+            for (let i = 0; i < rows.length - 1; i++) {
+                const inputs = rows[i].getElementsByTagName('input');
+                sumS1P += parseNumber(inputs[0].value);
+                sumS2P += parseNumber(inputs[1].value);
+                sumS1S += parseNumber(inputs[6].value);
+                sumS2S += parseNumber(inputs[7].value);
+                const apc = parseNumber(inputs[12].value);
+                if (apc > 0) { totalA += apc; countA++; }
+            }
+
+            document.getElementById('sumShift1Penjualan').textContent = formatNumber(sumS1P) || '-';
+            document.getElementById('sumShift2Penjualan').textContent = formatNumber(sumS2P) || '-';
+            document.getElementById('totalPenjualan').textContent = formatNumber(sumS1P + sumS2P) || '-';
+            document.getElementById('sumShift1Struk').textContent = formatNumber(sumS1S) || '-';
+            document.getElementById('sumShift2Struk').textContent = formatNumber(sumS2S) || '-';
+            document.getElementById('totalStruk').textContent = formatNumber(sumS1S + sumS2S) || '-';
+            document.getElementById('avgAPC').textContent = countA > 0 ? formatNumber(totalA / countA) : '-';
+        }
+
+        // =====================================================
+        // SIMPAN DATA
+        // =====================================================
+        async function manualSave() {
+            if (!auth.currentUser) {
+                showMessage('⚠️ Login dulu untuk menyimpan!');
+                return;
+            }
+
+            showLoading('Menyimpan data...');
+
+            try {
+                await saveDataToServer();
+                setDirty(false); // Reset dirty flag on success
+                showMessage('✅ Data tersimpan ke server');
+                updateCacheStatus('synced');
+            } catch (error) {
+                console.error('Save error:', error);
+                showMessage('❌ Gagal simpan: ' + error.message);
+                updateCacheStatus('error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function saveDataToServer() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const docId = `salesData_${year}_${month}`;
+            const data = collectTableData();
+
+            await db.collection("salesReports").doc(docId).set({
+                data: data,
+                timestamp: new Date()
+            });
+
+            DataCache.set(year, month, data);
+        }
+
+        function collectTableData() {
+            const data = [];
+            const rows = document.getElementById('tableBody').rows;
+
+            for (let i = 0; i < rows.length - 1; i++) {
+                const inputs = rows[i].getElementsByTagName('input');
+                data.push({
+                    s1: parseNumber(inputs[0].value) || 0,
+                    s2: parseNumber(inputs[1].value) || 0,
+                    st1: parseNumber(inputs[6].value) || 0,
+                    st2: parseNumber(inputs[7].value) || 0,
+                    totalNet: parseNumber(inputs[2].value) || 0,
+                    akmSales: parseNumber(inputs[3].value) || 0,
+                    spd: parseNumber(inputs[4].value) || 0,
+                    totalStruk: parseNumber(inputs[8].value) || 0,
+                    akmStruk: parseNumber(inputs[9].value) || 0,
+                    std: parseNumber(inputs[10].value) || 0,
+                    apc: parseNumber(inputs[12].value) || 0,
+                    m_total: inputs[2].dataset.manual === 'true',
+                    m_akmS: inputs[3].dataset.manual === 'true',
+                    m_totalSt: inputs[8].dataset.manual === 'true',
+                    m_akmSt: inputs[9].dataset.manual === 'true'
+                });
+            }
+            return data;
+        }
+
+        // =====================================================
+        // HAPUS DATA
+        // =====================================================
+        async function clearCurrentMonthData() {
+            if (!confirm('Yakin ingin hapus semua data bulan ini? Tindakan ini tidak dapat diurungkan.')) return;
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const docId = `salesData_${year}_${month}`;
+
+            showLoading('Menghapus data...');
+
+            try {
+                await db.collection("salesReports").doc(docId).delete();
+                DataCache.invalidate(year, month);
+                setDirty(false);
+                await initializeMonth();
+                showMessage('✅ Data berhasil dihapus');
+                toggleSettingsModal();
+            } catch (e) {
+                console.error('Delete error:', e);
+                showMessage('❌ Gagal hapus: ' + e.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // =====================================================
+        // EXPORT DATA
+        // =====================================================
+        function exportCurrentMonth() {
+            const rows = document.getElementById('tableBody').rows;
+            const data = [];
+
+            for (let i = 0; i < rows.length - 1; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const inputs = rows[i].getElementsByTagName('input');
+
+                if (!inputs[2] || inputs[2].value.trim() === '' || !inputs[8] || inputs[8].value.trim() === '') continue;
+
+                data.push({
+                    no: i + 1,
+                    tanggal: cells[1].textContent,
+                    s1: parseNumber(inputs[0].value) || 0,
+                    s2: parseNumber(inputs[1].value) || 0,
+                    totalNet: parseNumber(inputs[2].value) || 0,
+                    akmNet: parseNumber(inputs[3].value) || 0,
+                    st1: parseNumber(inputs[6].value) || 0,
+                    st2: parseNumber(inputs[7].value) || 0,
+                    totalStruk: parseNumber(inputs[8].value) || 0,
+                    akmStruk: parseNumber(inputs[9].value) || 0
+                });
+            }
+
+            document.getElementById('exportTextArea').value = JSON.stringify(data, null, 2);
+            toggleSettingsModal();
+            toggleExportModal();
+            showMessage('✅ Data siap untuk disalin');
+        }
+
+        async function exportAllData() {
+            showLoading('Mengambil semua data...');
+
+            try {
+                const snapshot = await db.collection("salesReports").get();
+                const allData = [];
+
+                for (const doc of snapshot.docs) {
+                    const parts = doc.id.split('_');
+                    if (parts.length !== 3 || parts[0] !== 'salesData') continue;
+
+                    const year = parseInt(parts[1], 10);
+                    const month = parseInt(parts[2], 10);
+                    const monthData = doc.data().data || [];
+
+                    let akmNet = 0, akmStruk = 0;
+
+                    for (let rowIndex = 0; rowIndex < monthData.length; rowIndex++) {
+                        const row = monthData[rowIndex] || {};
+                        let totalNet = row.totalNet || (row.s1 + row.s2) || 0;
+                        let totalStruk = row.totalStruk || (row.st1 + row.st2) || 0;
+
+                        if (!totalNet || !totalStruk) continue;
+
+                        akmNet += totalNet;
+                        akmStruk += totalStruk;
+
+                        const dateObj = new Date(year, month, rowIndex + 1);
+                        const tanggalStr = dateObj.toLocaleDateString('id-ID', {
+                            weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric'
+                        });
+
+                        allData.push({
+                            no: 0,
+                            tanggal: tanggalStr,
+                            s1: row.s1 || 0,
+                            s2: row.s2 || 0,
+                            totalNet: totalNet,
+                            akmNet: akmNet,
+                            st1: row.st1 || 0,
+                            st2: row.st2 || 0,
+                            totalStruk: totalStruk,
+                            akmStruk: akmStruk
+                        });
+                    }
+                }
+
+                allData.sort((a, b) => {
+                    const extractDate = (str) => {
+                        const parts = str.split(', ');
+                        const datePart = parts[1] || parts[0];
+                        const [day, month, year] = datePart.split('/').map(Number);
+                        return new Date(year, month - 1, day);
+                    };
+                    return extractDate(a.tanggal) - extractDate(b.tanggal);
+                });
+
+                allData.forEach((obj, index) => { obj.no = index + 1; });
+
+                document.getElementById('exportTextArea').value = JSON.stringify(allData, null, 2);
+                toggleSettingsModal();
+                toggleExportModal();
+                showMessage('✅ Data semua bulan siap untuk disalin');
+            } catch (e) {
+                console.error('Export all error:', e);
+                showMessage('❌ Gagal export: ' + e.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // =====================================================
+        // IMPORT DATA
+        // =====================================================
+        async function handleImport() {
+            const textarea = document.getElementById('importTextArea');
+            const rawText = textarea.value;
+
+            if (!rawText || !rawText.trim()) {
+                showMessage('❌ Kolom import kosong');
+                return;
+            }
+
+            if (!confirm('Mengimpor data akan menimpa semua data bulan ini. Lanjutkan?')) return;
+
+            try {
+                const parsed = JSON.parse(rawText);
+                if (!Array.isArray(parsed)) throw new Error('Format bukan array');
+
+                const tableRows = document.getElementById('tableBody').rows;
+                const dateIndexMap = {};
+
+                for (let i = 0; i < tableRows.length - 1; i++) {
+                    const cells = tableRows[i].getElementsByTagName('td');
+                    if (cells && cells[1]) {
+                        dateIndexMap[cells[1].textContent.trim()] = i;
+                    }
+                }
+
+                parsed.forEach(rowData => {
+                    const targetIndex = dateIndexMap[rowData.tanggal];
+                    if (targetIndex === undefined) return;
+
+                    const inputs = tableRows[targetIndex].getElementsByTagName('input');
+
+                    inputs[0].value = formatNumber(parseFloat(rowData.s1) || 0);
+                    inputs[1].value = formatNumber(parseFloat(rowData.s2) || 0);
+
+                    const sumNet = (parseFloat(rowData.s1) || 0) + (parseFloat(rowData.s2) || 0);
+                    const totalNetVal = parseFloat(rowData.totalNet) || 0;
+                    inputs[2].value = formatNumber(totalNetVal);
+
+                    if (totalNetVal !== 0 && Math.round(totalNetVal) !== Math.round(sumNet)) {
+                        inputs[2].dataset.manual = 'true';
+                        inputs[2].classList.add('manual-override');
+                    } else {
+                        delete inputs[2].dataset.manual;
+                        inputs[2].classList.remove('manual-override');
+                    }
+
+                    delete inputs[3].dataset.manual;
+                    inputs[3].classList.remove('manual-override');
+
+                    inputs[6].value = formatNumber(parseFloat(rowData.st1) || 0);
+                    inputs[7].value = formatNumber(parseFloat(rowData.st2) || 0);
+
+                    const sumStruk = (parseFloat(rowData.st1) || 0) + (parseFloat(rowData.st2) || 0);
+                    const totalStrukVal = parseFloat(rowData.totalStruk) || 0;
+                    inputs[8].value = formatNumber(totalStrukVal);
+
+                    if (totalStrukVal !== 0 && Math.round(totalStrukVal) !== Math.round(sumStruk)) {
+                        inputs[8].dataset.manual = 'true';
+                        inputs[8].classList.add('manual-override');
+                    } else {
+                        delete inputs[8].dataset.manual;
+                        inputs[8].classList.remove('manual-override');
+                    }
+
+                    delete inputs[9].dataset.manual;
+                    inputs[9].classList.remove('manual-override');
+                });
+
+                calculateAllRows();
+                updateSummary();
+                setDirty(true);
+
+                textarea.value = '';
+                showMessage('✅ Data berhasil di-import');
+                toggleImportModal();
+                toggleSettingsModal();
+            } catch (e) {
+                console.error('Import error:', e);
+                showMessage('❌ Gagal import: Format teks tidak valid');
+            }
+        }
+
+        // =====================================================
+        // MODAL FUNCTIONS
+        // =====================================================
+        function toggleSettingsModal() {
+            document.getElementById('settingsModal').classList.toggle('show');
+        }
+
+        function toggleExportModal() {
+            document.getElementById('exportModal').classList.toggle('show');
+        }
+
+        function toggleImportModal() {
+            document.getElementById('importModal').classList.toggle('show');
+        }
+
+        function copyExportText() {
+            const text = document.getElementById('exportTextArea').value;
+            navigator.clipboard.writeText(text)
+                .then(() => showMessage('📋 Teks berhasil disalin'))
+                .catch(() => showMessage('❌ Gagal menyalin teks'));
+        }
+
+        // =====================================================
+        // SELEKSI BARIS & COPY REPORT
+        // =====================================================
+        function selectRow(rowIndex) {
+            deselectAllRows();
+            const row = document.querySelector(`tr[data-rowindex="${rowIndex}"]`);
+            if (row) {
+                row.classList.add('selected-row');
+                selectedRowIndex = rowIndex;
+                const dateText = row.cells[1].textContent.split(', ')[1];
+                document.getElementById('copyReportBtn').title = `Salin Laporan untuk ${dateText}`;
+            }
+        }
+
+        function deselectAllRows() {
+            const currentlySelected = document.querySelector('.selected-row');
+            if (currentlySelected) currentlySelected.classList.remove('selected-row');
+            selectedRowIndex = null;
+            document.getElementById('copyReportBtn').title = 'Salin Laporan (Pilih tanggal dulu)';
+        }
+
+        function getReportData(rowIndex) {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const rows = document.getElementById('tableBody').rows;
+            if (!rows[rowIndex]) return null;
+
+            const formatReportNumber = (num) => Math.round(num).toLocaleString('id-ID');
+            const formatGrowthForReport = (val) => {
+                if (!val) return '';
+                const num = parseFloat(val.replace('%', ''));
+                return (num > 0 ? '+' : '') + num.toFixed(1) + '%';
+            };
+
+            const currentInputs = rows[rowIndex].getElementsByTagName('input');
+            const dataNow = {
+                tglSales: rows[rowIndex].cells[1].textContent.split(', ')[1],
+                salesS1: formatReportNumber(parseNumber(currentInputs[0].value)),
+                salesS2: formatReportNumber(parseNumber(currentInputs[1].value)),
+                totalNet: formatReportNumber(parseNumber(currentInputs[2].value)),
+                akmSales: formatReportNumber(parseNumber(currentInputs[3].value)),
+                spd: formatReportNumber(parseNumber(currentInputs[4].value)),
+                growthSpd: formatGrowthForReport(currentInputs[5].value),
+                strukS1: formatReportNumber(parseNumber(currentInputs[6].value)),
+                strukS2: formatReportNumber(parseNumber(currentInputs[7].value)),
+                totalStruk: formatReportNumber(parseNumber(currentInputs[8].value)),
+                akmStruk: formatReportNumber(parseNumber(currentInputs[9].value)),
+                std: formatReportNumber(parseNumber(currentInputs[10].value)),
+                growthStd: formatGrowthForReport(currentInputs[11].value),
+                apc: formatReportNumber(parseNumber(currentInputs[12].value)),
+                growthApc: formatGrowthForReport(currentInputs[13].value)
+            };
+
+            let dataPrev = {
+                prev_totalNet: '0', prev_totalStruk: '0',
+                prev_spd: '0', prev_std: '0', prev_apc: '0'
+            };
+
+            const prevYear = month === 0 ? year - 1 : year;
+            const prevMonth = month === 0 ? 11 : month - 1;
+            const cachedPrevMonth = DataCache.get(prevYear, prevMonth);
+
+            if (cachedPrevMonth && cachedPrevMonth.data && cachedPrevMonth.data[rowIndex]) {
+                const prevDayData = cachedPrevMonth.data[rowIndex];
+                dataPrev.prev_totalNet = formatReportNumber(prevDayData.totalNet);
+                dataPrev.prev_totalStruk = formatReportNumber(prevDayData.totalStruk);
+                dataPrev.prev_spd = formatReportNumber(prevDayData.spd);
+                dataPrev.prev_std = formatReportNumber(Math.floor(prevDayData.std));
+                dataPrev.prev_apc = formatReportNumber(prevDayData.apc);
+            }
+
+            return { ...dataNow, ...dataPrev };
+        }
+
+        function handleCopyReport(rowIndex) {
+            const reportData = getReportData(rowIndex);
+            if (!reportData) {
+                showMessage('❌ Data tidak ditemukan untuk disalin.');
+                return;
+            }
+
+            let template = localStorage.getItem('reportTemplate') || DEFAULT_REPORT_TEMPLATE;
+            let reportText = template.replace(/\{(\w+)\}/g, (match, key) => reportData[key] || '0');
+
+            navigator.clipboard.writeText(reportText)
+                .then(() => {
+                    showMessage('✅ Laporan berhasil disalin!');
+                    deselectAllRows();
+                })
+                .catch(err => showMessage('❌ Gagal menyalin laporan.'));
+        }
+
+        function copyReport() {
+            let indexToCopy;
+            if (selectedRowIndex !== null) {
+                indexToCopy = selectedRowIndex;
+            } else {
+                const today = new Date();
+                if (currentDate.getFullYear() !== today.getFullYear() || currentDate.getMonth() !== today.getMonth()) {
+                    showMessage('Pilih tanggal dulu, atau pindah ke bulan ini.');
+                    return;
+                }
+                indexToCopy = today.getDate() - 1;
+            }
+            handleCopyReport(indexToCopy);
+        }
+
+        // =====================================================
+        // TEMPLATE EDITOR
+        // =====================================================
+        function toggleTemplateEditor() {
+            const modal = document.getElementById('templateEditorModal');
+            if (!modal.classList.contains('show')) loadTemplate();
+            modal.classList.toggle('show');
+            toggleSettingsModal();
+        }
+
+        function loadTemplate() {
+            document.getElementById('reportTemplateTextarea').value =
+                localStorage.getItem('reportTemplate') || DEFAULT_REPORT_TEMPLATE;
+
+            const tagsContainer = document.querySelector('.placeholder-tags');
+            tagsContainer.innerHTML = '';
+
+            REPORT_PLACEHOLDERS.forEach(tag => {
+                const span = document.createElement('span');
+                span.textContent = `{${tag}}`;
+                span.onclick = () => navigator.clipboard.writeText(`{${tag}}`)
+                    .then(() => showMessage(`Tag {${tag}} disalin`));
+                tagsContainer.appendChild(span);
+            });
+        }
+
+        function saveTemplate() {
+            localStorage.setItem('reportTemplate', document.getElementById('reportTemplateTextarea').value);
+            showMessage('✅ Template berhasil disimpan.');
+            toggleTemplateEditor();
+        }
+
+        function resetTemplate() {
+            if (confirm('Yakin ingin mengembalikan template ke default?')) {
+                document.getElementById('reportTemplateTextarea').value = DEFAULT_REPORT_TEMPLATE;
+                saveTemplate();
+            }
+        }
+
+        // =====================================================
+        // QUICK INPUT MODAL - STATION BASED
+        // =====================================================
+        function openQuickInputModal() {
+            const today = new Date();
+            if (currentDate.getFullYear() !== today.getFullYear() || currentDate.getMonth() !== today.getMonth()) {
+                if (!confirm("Mode input cepat hanya untuk hari ini. Pindah ke bulan ini?")) return;
+                resetToCurrentMonth();
+                return;
+            }
+
+            const modal = document.getElementById('quickInputModal');
+            const body = document.getElementById('quickInputBody');
+            document.getElementById('quickInputTitle').textContent = `Input Cepat - ${formatDate(today).split(', ')[1]}`;
+
+            const rowIndex = today.getDate() - 1;
+            const row = document.getElementById('tableBody').rows[rowIndex];
+            const inputs = row ? row.getElementsByTagName('input') : [{}, {}, {}, {}, {}, {}, {}, {}];
+
+            // Get existing values
+            const existingS1 = parseNumber(inputs[0].value);
+            const existingS2 = parseNumber(inputs[1].value);
+            const existingSt1 = parseNumber(inputs[6].value);
+            const existingSt2 = parseNumber(inputs[7].value);
+
+            body.innerHTML = `
+                <div id="quickInputForm">
+                    <!-- Penjualan Shift 1 -->
+                    <div class="station-block">
+                        <div class="station-block-title">💰 Penjualan Net (Shift 1)</div>
+                        <div class="station-inputs">
+                            <div class="station-input-group">
+                                <label>Station 1</label>
+                                <input type="text" inputmode="decimal" id="salesS1Stat1" placeholder="0">
+                            </div>
+                            <div class="station-input-group">
+                                <label>Station 2</label>
+                                <input type="text" inputmode="decimal" id="salesS1Stat2" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="station-total" id="salesS1Total">Total: ${formatNumber(existingS1) || '0'}</div>
+                    </div>
+
+                    <!-- Penjualan Shift 2 -->
+                    <div class="station-block">
+                        <div class="station-block-title">💰 Penjualan Net (Shift 2)</div>
+                        <div class="station-inputs">
+                            <div class="station-input-group">
+                                <label>Station 1</label>
+                                <input type="text" inputmode="decimal" id="salesS2Stat1" placeholder="0">
+                            </div>
+                            <div class="station-input-group">
+                                <label>Station 2</label>
+                                <input type="text" inputmode="decimal" id="salesS2Stat2" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="station-total" id="salesS2Total">Total: ${formatNumber(existingS2) || '0'}</div>
+                    </div>
+
+                    <!-- Struk Shift 1 -->
+                    <div class="station-block">
+                        <div class="station-block-title">🧾 Struk (Shift 1)</div>
+                        <div class="station-inputs">
+                            <div class="station-input-group">
+                                <label>Station 1</label>
+                                <input type="text" inputmode="decimal" id="strukS1Stat1" placeholder="0">
+                            </div>
+                            <div class="station-input-group">
+                                <label>Station 2</label>
+                                <input type="text" inputmode="decimal" id="strukS1Stat2" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="station-total" id="strukS1Total">Total: ${formatNumber(existingSt1) || '0'}</div>
+                    </div>
+
+                    <!-- Struk Shift 2 -->
+                    <div class="station-block">
+                        <div class="station-block-title">🧾 Struk (Shift 2)</div>
+                        <div class="station-inputs">
+                            <div class="station-input-group">
+                                <label>Station 1</label>
+                                <input type="text" inputmode="decimal" id="strukS2Stat1" placeholder="0">
+                            </div>
+                            <div class="station-input-group">
+                                <label>Station 2</label>
+                                <input type="text" inputmode="decimal" id="strukS2Stat2" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="station-total" id="strukS2Total">Total: ${formatNumber(existingSt2) || '0'}</div>
+                    </div>
+
+                    <button id="quickSaveBtn" onclick="handleQuickSave()">💾 Simpan Data</button>
+                </div>
+            `;
+
+            // Setup input formatting and live calculation
+            const stationInputs = [
+                { stat1: 'salesS1Stat1', stat2: 'salesS1Stat2', total: 'salesS1Total' },
+                { stat1: 'salesS2Stat1', stat2: 'salesS2Stat2', total: 'salesS2Total' },
+                { stat1: 'strukS1Stat1', stat2: 'strukS1Stat2', total: 'strukS1Total' },
+                { stat1: 'strukS2Stat1', stat2: 'strukS2Stat2', total: 'strukS2Total' }
+            ];
+
+            stationInputs.forEach(group => {
+                const stat1Input = document.getElementById(group.stat1);
+                const stat2Input = document.getElementById(group.stat2);
+                const totalDisplay = document.getElementById(group.total);
+
+                const updateTotal = () => {
+                    const val1 = parseNumber(stat1Input.value);
+                    const val2 = parseNumber(stat2Input.value);
+                    const total = val1 + val2;
+                    totalDisplay.textContent = `Total: ${formatNumber(total) || '0'}`;
+                };
+
+                stat1Input.addEventListener('input', function () {
+                    formatInputValue(this);
+                    updateTotal();
+                });
+
+                stat2Input.addEventListener('input', function () {
+                    formatInputValue(this);
+                    updateTotal();
+                });
+            });
+
+            modal.classList.add('show');
+            document.getElementById('salesS1Stat1').focus();
+        }
+
+        function closeQuickInputModal() {
+            document.getElementById('quickInputModal').classList.remove('show');
+        }
+
+        function handleQuickSave() {
+            const today = new Date();
+            const rowIndex = today.getDate() - 1;
+            const row = document.getElementById('tableBody').rows[rowIndex];
+            if (!row) { showMessage('❌ Terjadi kesalahan'); return; }
+
+            const inputs = row.getElementsByTagName('input');
+
+            // Calculate totals from station inputs
+            const salesS1 = parseNumber(document.getElementById('salesS1Stat1').value) +
+                parseNumber(document.getElementById('salesS1Stat2').value);
+            const salesS2 = parseNumber(document.getElementById('salesS2Stat1').value) +
+                parseNumber(document.getElementById('salesS2Stat2').value);
+            const strukS1 = parseNumber(document.getElementById('strukS1Stat1').value) +
+                parseNumber(document.getElementById('strukS1Stat2').value);
+            const strukS2 = parseNumber(document.getElementById('strukS2Stat1').value) +
+                parseNumber(document.getElementById('strukS2Stat2').value);
+
+            // Only update if there's a value
+            if (salesS1 > 0) inputs[0].value = formatNumber(salesS1);
+            if (salesS2 > 0) inputs[1].value = formatNumber(salesS2);
+            if (strukS1 > 0) inputs[6].value = formatNumber(strukS1);
+            if (strukS2 > 0) inputs[7].value = formatNumber(strukS2);
+
+            delete inputs[2].dataset.manual; inputs[2].classList.remove('manual-override');
+            delete inputs[8].dataset.manual; inputs[8].classList.remove('manual-override');
+
+            handleRowChange(rowIndex);
+            setDirty(true);
+
+            document.getElementById('quickInputBody').innerHTML = `
+                <div class="post-save-actions">
+                    <h3>✓ Data Berhasil Disimpan!</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                        Penjualan S1: ${formatNumber(salesS1)}<br>
+                        Penjualan S2: ${formatNumber(salesS2)}<br>
+                        Struk S1: ${formatNumber(strukS1)}<br>
+                        Struk S2: ${formatNumber(strukS2)}
+                    </p>
+                    <div class="action-buttons">
+                        <button onclick="manualSave().then(() => handleCopyReport(${rowIndex}))">💾 Simpan & Salin Laporan</button>
+                        <button onclick="handleCopyReport(${rowIndex})">📋 Salin Laporan Saja</button>
+                        <button onclick="closeQuickInputModal()">✓ Selesai</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // =====================================================
+        // SCROLL TO TODAY
+        // =====================================================
+        function scrollToToday(force = false) {
+            const today = new Date();
+            if (currentDate.getFullYear() === today.getFullYear() && currentDate.getMonth() === today.getMonth()) {
+                const todayRow = document.querySelector(`tr[data-rowindex="${today.getDate() - 1}"]`);
+                if (todayRow) {
+                    const tableWrapper = document.getElementById('tableWrapper');
+                    if (force || tableWrapper.scrollTop === 0) {
+                        todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        todayRow.classList.add('highlight-today');
+                        setTimeout(() => todayRow.classList.remove('highlight-today'), 2000);
+                    }
+                }
+            }
+        }
+
+        // =====================================================
+        // AUTENTIKASI
+        // =====================================================
+        function loginGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    showMessage('✅ Login berhasil: ' + result.user.displayName);
+                })
+                .catch((error) => {
+                    console.error("Login error:", error);
+                    showMessage('❌ Login gagal: ' + error.message);
+                });
+        }
+
+        function logoutGoogle() {
+            if (isDirty) {
+                if (!confirm('Ada perubahan yang belum disimpan. Yakin ingin keluar?')) {
+                    return;
+                }
+            }
+
+            auth.signOut().then(() => {
+                DataCache.clear();
+                currentUserRole = null;
+                adminModeEnabled = false;
+                setDirty(false);
+                showMessage('Sampai jumpa!');
+                generateTableStructure();
+                updateUIForRole();
+            });
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // If in dev mode (localhost), skip normal auth checks
+            if (isDevMode) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'none';
+                updateUIForRole();
+                await initializeMonth();
+                return;
+            }
+
+            if (user) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                console.log("User ID:", user.uid);
+                console.log("User Email:", user.email);
+
+                // Check user role
+                currentUserRole = await checkUserRole(user.email);
+
+                if (!currentUserRole) {
+                    // User not registered - submit access request automatically
+                    await submitAccessRequest(user.email);
+                    showMessage('📧 Email Anda belum terdaftar. Permintaan akses telah dikirim ke admin.');
+                    await logAuditAction('login', `Login attempt from unregistered user: ${user.email}`);
+                    updateUIForRole();
+                    generateTableStructure();
+                    applyLockingLogic();
+                    hideLoading();
+                    return;
+                }
+
+                // Check if user is active
+                try {
+                    const userDoc = await db.collection('users').doc(user.email).get();
+                    if (userDoc.exists && userDoc.data().active === false) {
+                        showMessage('🔒 Akun Anda dinonaktifkan. Hubungi admin.');
+                        await logAuditAction('security', `Login attempt from disabled account: ${user.email}`);
+                        currentUserRole = null;
+                        updateUIForRole();
+                        generateTableStructure();
+                        applyLockingLogic();
+                        hideLoading();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error checking user status:', e);
+                }
+
+                await logAuditAction('login', `User logged in: ${user.email}`);
+                updateUIForRole();
+                await initializeMonth();
+            } else {
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                currentUserRole = null;
+                adminModeEnabled = false;
+                updateUIForRole();
+                showMessage('Silakan Login untuk menyimpan data');
+                generateTableStructure();
+                hideLoading();
+            }
+        });
+
+        // =====================================================
+        // INISIALISASI APLIKASI
+        // =====================================================
+        window.onload = function () {
+            initTheme();
+            initDevMode(); // Initialize dev mode if on localhost
+            generateTableStructure();
+            updateSaveButtonState();
+
+            // Load data if in dev mode
+            if (isDevMode) {
+                updateUIForRole();
+                initializeMonth();
+            }
+        };
+    </script>
+</body>
+
+</html>

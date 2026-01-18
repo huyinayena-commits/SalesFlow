@@ -1021,15 +1021,24 @@ const REPORT_PLACEHOLDERS = [
 // =====================================================
 // FUNGSI LOADING & UI
 // =====================================================
+// Flag untuk menandai data sudah dimuat
+let isDataLoaded = false;
+
 function showLoading(text = 'Memuat data...') {
     document.getElementById('loadingText').textContent = text;
     document.getElementById('loadingOverlay').classList.add('show');
     setNavigationEnabled(false);
+    // Disable save button saat loading
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.disabled = true;
 }
 
 function hideLoading() {
     document.getElementById('loadingOverlay').classList.remove('show');
     setNavigationEnabled(true);
+    // Re-enable save button setelah loading selesai
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.disabled = false;
 }
 
 function setNavigationEnabled(enabled) {
@@ -1182,6 +1191,7 @@ async function initializeMonth() {
 
     showLoading('Memuat data...');
     updateCacheStatus('pending');
+    isDataLoaded = false; // Reset flag saat mulai loading
 
     try {
         generateTableStructure();
@@ -1206,6 +1216,7 @@ async function initializeMonth() {
 
         updateCacheStatus('synced');
         scrollToToday();
+        isDataLoaded = true; // Set flag setelah data berhasil dimuat
 
     } catch (error) {
         console.error('Error initializing month:', error);
@@ -1552,6 +1563,21 @@ function updateSummary() {
 // SIMPAN DATA
 // =====================================================
 async function manualSave() {
+    // Cek apakah data sudah dimuat
+    if (!isDataLoaded) {
+        showMessage('Tunggu data selesai dimuat sebelum menyimpan');
+        return;
+    }
+
+    // Cek apakah ada data yang valid (tidak semua kosong)
+    const data = collectTableData();
+    const hasData = data.some(row => row.s1 > 0 || row.s2 > 0 || row.st1 > 0 || row.st2 > 0);
+    if (!hasData) {
+        if (!confirm('Semua data kosong. Yakin ingin menyimpan data kosong?')) {
+            return;
+        }
+    }
+
     if (!auth.currentUser) {
         showMessage('âš ï¸ Login dulu untuk menyimpan!');
         return;

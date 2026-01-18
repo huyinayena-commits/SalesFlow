@@ -2313,6 +2313,7 @@ auth.onAuthStateChanged(async (user) => {
         updateUIForRole();
         showMessage('Silakan Login untuk menyimpan data');
         generateTableStructure();
+        await initializeMonth(); // Load data untuk guest juga
         hideLoading();
     }
 });
@@ -2324,4 +2325,5 @@ window.onload = function () {
     initTheme();
     generateTableStructure();
     updateSaveButtonState();
+    showLoading('Memuat aplikasi...');
 };

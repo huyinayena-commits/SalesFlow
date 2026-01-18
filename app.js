@@ -21,43 +21,6 @@
         const SUPER_ADMIN_EMAIL = "huyinayena@gmail.com";
 
         // =====================================================
-        // LOCALHOST DETECTION & DEV MODE
-        // =====================================================
-        function isLocalhost() {
-            const hostname = window.location.hostname;
-            return hostname === 'localhost' || hostname === '127.0.0.1';
-        }
-
-        let isDevMode = isLocalhost();
-
-        function initDevMode() {
-            if (isDevMode) {
-                // Add dev mode banner
-                const banner = document.createElement('div');
-                banner.className = 'dev-mode-banner';
-                banner.innerHTML = `
-                    <span class="dev-badge">DEV</span>
-                    ðŸš€ Mode Localhost Aktif - Super Admin tanpa login
-                    <button onclick="disableDevMode()" style="margin-left: 10px; padding: 4px 12px; background: #000; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">Nonaktifkan</button>
-                `;
-                document.body.insertBefore(banner, document.body.firstChild);
-
-                // Set Super Admin role immediately
-                currentUserRole = 'superadmin';
-                console.log('ðŸš€ Localhost detected - Super Admin mode enabled');
-            }
-        }
-
-        function disableDevMode() {
-            isDevMode = false;
-            const banner = document.querySelector('.dev-mode-banner');
-            if (banner) banner.remove();
-            currentUserRole = null;
-            updateUIForRole();
-            showMessage('Mode Development dinonaktifkan');
-        }
-
-        // =====================================================
         // SYSTEM CONFIGURATION
         // =====================================================
         let systemConfig = {
@@ -518,7 +481,7 @@
         let allAuditLogs = [];
 
         async function logAuditAction(type, action, details = null) {
-            if (!systemConfig.auditLogging && !isDevMode) return;
+            if (!systemConfig.auditLogging) return;
 
             try {
                 await db.collection('auditLogs').add({
@@ -2330,14 +2293,7 @@ GROWTH VS LALU : {growthApc}`;
             const loginBtn = document.getElementById('loginBtn');
             const logoutBtn = document.getElementById('logoutBtn');
 
-            // If in dev mode (localhost), skip normal auth checks
-            if (isDevMode) {
-                loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'none';
-                updateUIForRole();
-                await initializeMonth();
-                return;
-            }
+
 
             if (user) {
                 loginBtn.style.display = 'none';
@@ -2397,13 +2353,6 @@ GROWTH VS LALU : {growthApc}`;
         // =====================================================
         window.onload = function () {
             initTheme();
-            initDevMode(); // Initialize dev mode if on localhost
             generateTableStructure();
             updateSaveButtonState();
-
-            // Load data if in dev mode
-            if (isDevMode) {
-                updateUIForRole();
-                initializeMonth();
-            }
         };

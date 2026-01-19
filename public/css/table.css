@@ -1,0 +1,259 @@
+/* =====================================================
+   TABLE STYLES - TABEL DATA PENJUALAN
+   ===================================================== */
+
+/* =====================================================
+   TABLE WRAPPER
+   ===================================================== */
+
+.table-wrapper {
+    flex-grow: 1;
+    overflow: auto;
+    padding: 0 15px 15px 15px;
+    background-color: var(--bg-secondary);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    table-layout: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px var(--shadow);
+}
+
+/* =====================================================
+   TABLE HEADERS
+   ===================================================== */
+
+th {
+    color: var(--text-light);
+    padding: 16px 12px;
+    text-align: center;
+    font-weight: 700;
+    border: none;
+    border-bottom: 2px solid var(--accent-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.main-header {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 18px 12px;
+    border-bottom: 3px solid var(--accent-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .main-header {
+    background: linear-gradient(180deg, #1a2744 0%, #0d1421 100%);
+    border-bottom-color: #1d9bf0;
+}
+
+.sub-header {
+    font-size: 11px;
+    font-weight: 600;
+    background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+    padding: 12px 8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+[data-theme="dark"] .sub-header {
+    background: linear-gradient(180deg, #1e2d3d 0%, #15202b 100%);
+    color: #8b98a5;
+    border-bottom-color: rgba(29, 155, 240, 0.3);
+}
+
+/* =====================================================
+   TABLE CELLS
+   ===================================================== */
+
+td {
+    padding: 10px 8px;
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+tr:hover td {
+    background-color: var(--hover-bg);
+    transform: scale(1.01);
+}
+
+/* Zebra stripes untuk dark mode */
+[data-theme="dark"] tbody tr:nth-child(even) td {
+    background-color: #121820;
+}
+
+[data-theme="dark"] tbody tr:nth-child(even):hover td {
+    background-color: var(--hover-bg);
+}
+
+/* =====================================================
+   DATE & NUMBER CELLS
+   ===================================================== */
+
+.date-cell,
+.number-cell {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    text-align: left;
+    padding-left: 14px;
+    min-width: 200px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.number-cell {
+    text-align: center;
+    min-width: 50px;
+    padding-left: 0;
+}
+
+/* =====================================================
+   ROW STATES
+   ===================================================== */
+
+.weekend {
+    background-color: var(--weekend-bg) !important;
+}
+
+.weekend:hover {
+    background-color: var(--weekend-hover) !important;
+}
+
+.selected-row td {
+    background-color: var(--selected-bg) !important;
+}
+
+.highlight-today td {
+    animation: highlight-fade 2s ease-out;
+}
+
+@keyframes highlight-fade {
+    0% {
+        background-color: var(--highlight-bg);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+tr.weekend.highlight-today td {
+    animation: highlight-fade-weekend 2s ease-out;
+}
+
+@keyframes highlight-fade-weekend {
+    0% {
+        background-color: var(--highlight-bg);
+    }
+
+    100% {
+        background-color: var(--weekend-bg);
+    }
+}
+
+/* =====================================================
+   TABLE INPUTS
+   ===================================================== */
+
+td input {
+    width: 100%;
+    min-width: 90px;
+    border: 2px solid transparent;
+    background: transparent;
+    text-align: right;
+    padding: 10px 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+td input[type="text"]::-webkit-outer-spin-button,
+td input[type="text"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+td input:not([readonly]) {
+    background-color: var(--input-bg);
+    border-radius: 6px;
+    border-color: var(--border-color);
+    cursor: text;
+}
+
+td input:not([readonly]):hover {
+    border-color: var(--input-focus);
+}
+
+td input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    background-color: var(--input-bg);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+td input[readonly] {
+    font-weight: 700;
+    color: var(--accent-color);
+    cursor: default;
+}
+
+td input.manual-override {
+    border-left: 3px solid var(--manual-override-border);
+    padding-left: 5px;
+}
+
+/* =====================================================
+   GROWTH COLORS
+   ===================================================== */
+
+.growth-positive {
+    color: var(--growth-positive) !important;
+    font-weight: 800 !important;
+}
+
+.growth-negative {
+    color: var(--growth-negative) !important;
+    font-weight: 800 !important;
+}
+
+/* =====================================================
+   SUMMARY ROW
+   ===================================================== */
+
+.summary {
+    background-color: var(--bg-secondary) !important;
+    font-weight: 800;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+}
+
+.summary td {
+    font-weight: 800;
+    font-size: 14px;
+    padding: 14px 8px;
+    border-top: 3px solid var(--border-color);
+    color: var(--text-primary);
+}

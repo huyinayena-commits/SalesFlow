@@ -142,10 +142,18 @@ function scrollToToday(force = false) {
 // ROW SELECTION
 // =====================================================
 function selectRow(rowIndex) {
+    // Toggle: jika baris yang sama diklik lagi, batalkan seleksi
+    if (selectedRowIndex === rowIndex) {
+        deselectAllRows();
+        return;
+    }
+
     deselectAllRows();
     const row = document.querySelector(`tr[data-rowindex="${rowIndex}"]`);
+    const tbody = document.getElementById('tableBody');
     if (row) {
         row.classList.add('selected-row');
+        if (tbody) tbody.classList.add('has-selection');
         selectedRowIndex = rowIndex;
         const dateText = row.cells[1].textContent.split(', ')[1];
         const copyBtn = document.getElementById('copyReportBtn');
@@ -155,7 +163,9 @@ function selectRow(rowIndex) {
 
 function deselectAllRows() {
     const currentlySelected = document.querySelector('.selected-row');
+    const tbody = document.getElementById('tableBody');
     if (currentlySelected) currentlySelected.classList.remove('selected-row');
+    if (tbody) tbody.classList.remove('has-selection');
     selectedRowIndex = null;
     const copyBtn = document.getElementById('copyReportBtn');
     if (copyBtn) copyBtn.title = 'Salin Laporan (Pilih tanggal dulu)';

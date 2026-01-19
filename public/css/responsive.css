@@ -2,37 +2,64 @@
    RESPONSIVE STYLES - MEDIA QUERIES
    ===================================================== */
 
+/* Tablet dan Mobile */
 @media screen and (max-width: 768px) {
-    .header {
-        padding: 10px;
-        flex-direction: column;
+
+    /* Header */
+    .header-top {
+        padding: 10px 12px;
     }
 
     .header h1 {
-        font-size: 18px;
-        order: 1;
+        font-size: 14px;
     }
 
-    .month-navigation {
-        width: 100%;
-        justify-content: center;
-        order: 3;
+    .header-actions {
+        gap: 6px;
     }
 
-    .header-controls {
-        order: 2;
+    .btn-icon {
+        width: 32px;
+        height: 32px;
     }
 
-    .current-month {
-        font-size: 16px;
-        min-width: 120px;
+    .btn-icon svg {
+        width: 16px;
+        height: 16px;
     }
 
-    .info-bar {
-        padding: 8px 14px;
+    .btn-primary,
+    .btn-secondary {
+        padding: 6px 12px;
         font-size: 12px;
     }
 
+    /* Header Navigation */
+    .header-nav {
+        padding: 8px 12px;
+        gap: 6px;
+    }
+
+    .nav-btn {
+        min-width: 32px;
+        height: 28px;
+        padding: 0 8px;
+        font-size: 12px;
+    }
+
+    .current-month {
+        font-size: 13px;
+        min-width: 120px;
+        padding: 0 8px;
+    }
+
+    /* Info Bar */
+    .info-bar {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    /* Table */
     .table-wrapper {
         padding: 0 5px 5px 5px;
     }
@@ -48,10 +75,12 @@
 
     .main-header {
         font-size: 12px;
+        padding: 10px 8px;
     }
 
     .sub-header {
         font-size: 10px;
+        padding: 8px 6px;
     }
 
     td {
@@ -66,7 +95,7 @@
     }
 
     .date-cell {
-        min-width: 170px;
+        min-width: 150px;
         font-size: 12px;
         padding-left: 10px;
     }
@@ -74,28 +103,139 @@
     .fab {
         bottom: 15px;
         right: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
     }
 }
 
+/* Mobile Kecil */
 @media screen and (max-width: 480px) {
-    .header {
-        align-items: center;
+
+    /* Header */
+    .header-top {
+        padding: 8px 10px;
     }
 
-    .header h1,
-    .header-controls,
-    .month-navigation {
-        width: 100%;
-        justify-content: center;
+    .header h1 {
+        font-size: 13px;
     }
 
-    .month-navigation {
-        flex-wrap: wrap;
-        gap: 5px;
+    .header-actions {
+        gap: 4px;
     }
 
-    .month-navigation button {
+    .btn-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .btn-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* Header Navigation */
+    .header-nav {
         padding: 6px 10px;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .nav-btn {
+        min-width: 28px;
+        height: 26px;
+        padding: 0 6px;
+        font-size: 11px;
+    }
+
+    .nav-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .current-month {
         font-size: 12px;
+        min-width: 100px;
+        padding: 0 6px;
+    }
+
+    /* Table */
+    .main-header {
+        font-size: 11px;
+        padding: 8px 6px;
+    }
+
+    .sub-header {
+        font-size: 9px;
+        padding: 6px 4px;
+    }
+
+    td {
+        padding: 3px;
+        min-width: 80px;
+    }
+
+    td input {
+        font-size: 11px;
+        padding: 6px 4px;
+        min-width: 70px;
+    }
+
+    .date-cell {
+        min-width: 130px;
+        font-size: 11px;
+        padding-left: 8px;
+    }
+
+    .fab {
+        bottom: 12px;
+        right: 12px;
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+    }
+
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+        max-height: 85vh;
+    }
+
+    .modal-header h2 {
+        font-size: 16px;
+    }
+
+    .modal-body h3 {
+        font-size: 14px;
+    }
+
+    .modal-body .action-buttons button {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+/* Landscape Mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .header-top {
+        padding: 6px 12px;
+    }
+
+    .header-nav {
+        padding: 6px 12px;
+    }
+
+    .fab {
+        bottom: 10px;
+        right: 10px;
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
+    .modal-content {
+        max-height: 90vh;
     }
 }

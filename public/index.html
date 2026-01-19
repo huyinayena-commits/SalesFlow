@@ -21,35 +21,59 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📊 Laporan Penjualan Bulanan</h1>
-            <div class="month-navigation">
-                <button id="btnPrev" onclick="changeMonth(-1)">◄</button>
-                <button onclick="resetToCurrentMonth()">📍 Hari Ini</button>
-                <div class="current-month" id="currentMonth"></div>
-                <button id="btnNext" onclick="changeMonth(1)">►</button>
+            <div class="header-top">
+                <h1>Laporan Penjualan</h1>
+                <div class="header-actions">
+                    <button id="loginBtn" class="btn-primary" onclick="loginGoogle()" title="Login dengan Google"
+                        style="display: none;">Masuk</button>
+                    <button id="logoutBtn" class="btn-secondary" onclick="logoutGoogle()" title="Keluar dari Akun"
+                        style="display: none;">Keluar</button>
+                    <button id="copyReportBtn" class="btn-icon" onclick="copyReport()" title="Salin Laporan">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                    <button id="saveBtn" class="btn-icon" onclick="manualSave()" title="Simpan Data">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                    </button>
+                    <button id="settingsBtn" class="btn-icon" onclick="toggleSettingsModal()" title="Pengaturan">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <div class="header-controls">
-                <button id="loginBtn" class="login-btn" onclick="loginGoogle()" title="Login dengan Google"
-                    style="display: none;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12.545,10.239v3.821h5.445c-0.712,2.3-2.715,4.095-5.445,4.095c-3.178,0-5.756-2.578-5.756-5.756 s2.578-5.756,5.756-5.756c1.472,0,2.805,0.522,3.844,1.498l2.903-2.903c-1.89-1.748-4.321-2.92-6.747-2.92 C5.344,2.316,0,7.662,0,14.61s5.344,12.295,11.905,12.295c5.385,0,9.972-3.882,9.972-10.707c0-0.748-0.09-1.465-0.201-2.153L12.545,10.239z" />
+            <div class="header-nav">
+                <button id="btnPrev" class="nav-btn" onclick="changeMonth(-1)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
-                    Masuk
                 </button>
-                <button id="logoutBtn" class="login-btn logout" onclick="logoutGoogle()" title="Keluar dari Akun"
-                    style="display: none;">Keluar</button>
-                <button id="copyReportBtn" class="icon-btn" onclick="copyReport()"
-                    title="Salin Laporan (Pilih tanggal dulu)">📋</button>
-                <button id="saveBtn" class="icon-btn" onclick="manualSave()" title="Simpan Data">💾</button>
-                <button id="settingsBtn" class="icon-btn" onclick="toggleSettingsModal()" title="Pengaturan">⚙️</button>
+                <button class="nav-btn today-btn" onclick="resetToCurrentMonth()">Hari Ini</button>
+                <span class="current-month" id="currentMonth"></span>
+                <button id="btnNext" class="nav-btn" onclick="changeMonth(1)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
             </div>
         </div>
 
         <!-- Info Bar -->
         <div class="info-bar">
             <div class="info-text">
-                <span id="dayCount"></span> • <strong>Input 4 kolom utama saja</strong>
+                <span id="dayCount"></span> - <strong>Input 4 kolom utama saja</strong>
                 <span id="userRoleBadge"></span>
                 <span id="cacheStatus" class="cache-status" title="Status sinkronisasi"></span>
             </div>
@@ -103,30 +127,30 @@
                 <div class="setting-item">
                     <span>Ganti Tema</span>
                     <button class="theme-toggle" onclick="toggleTheme()">
-                        <span id="themeIcon">🌙</span>
+                        <span id="themeIcon"></span>
                         <span id="themeText">Dark</span>
                     </button>
                 </div>
                 <div class="action-buttons">
-                    <button onclick="toggleTemplateEditor()">✍️ Edit Template Laporan</button>
+                    <button onclick="toggleTemplateEditor()">Edit Template Laporan</button>
                 </div>
 
 
 
                 <!-- User Management - Only visible for superadmin -->
                 <div id="userManagementSection" style="display: none;">
-                    <h3>👥 Manajemen Akses</h3>
+                    <h3>Manajemen Akses</h3>
                     <div class="action-buttons">
-                        <button onclick="openUserManagementModal()">👥 Kelola Pengguna</button>
+                        <button onclick="openUserManagementModal()">Kelola Pengguna</button>
                     </div>
                 </div>
 
                 <h3>Manajemen Data</h3>
                 <div class="action-buttons">
-                    <button class="btn-import" onclick="toggleImportModal()">📤 Import Data</button>
-                    <button onclick="exportCurrentMonth()">📥 Salin Bulan Ini</button>
-                    <button onclick="exportAllData()">📥 Salin Semua Data</button>
-                    <button class="btn-delete" onclick="clearCurrentMonthData()">🗑️ Hapus Data Bulan Ini</button>
+                    <button class="btn-import" onclick="toggleImportModal()">Import Data</button>
+                    <button onclick="exportCurrentMonth()">Salin Bulan Ini</button>
+                    <button onclick="exportAllData()">Salin Semua Data</button>
+                    <button class="btn-delete" onclick="clearCurrentMonthData()">Hapus Data Bulan Ini</button>
                 </div>
                 <div class="info-text">
                     <p><strong>Cache Info:</strong> Data di-cache lokal untuk performa optimal.</p>
@@ -178,8 +202,8 @@
                 <textarea id="exportTextArea" readonly
                     style="width: 100%; height: 50vh; white-space: pre; font-family: monospace; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; background-color: var(--input-bg); color: var(--text-primary);"></textarea>
                 <div class="action-buttons" style="margin-top: 15px;">
-                    <button onclick="copyExportText()">📋 Salin Semua</button>
-                    <button onclick="toggleExportModal()">✓ Selesai</button>
+                    <button onclick="copyExportText()">Salin Semua</button>
+                    <button onclick="toggleExportModal()">Selesai</button>
                 </div>
             </div>
         </div>
@@ -196,8 +220,8 @@
                 <textarea id="importTextArea"
                     style="width: 100%; height: 50vh; white-space: pre; font-family: monospace; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; background-color: var(--input-bg); color: var(--text-primary);"></textarea>
                 <div class="action-buttons" style="margin-top: 15px;">
-                    <button onclick="handleImport()">📤 Import</button>
-                    <button onclick="toggleImportModal()">✖ Batal</button>
+                    <button onclick="handleImport()">Import</button>
+                    <button onclick="toggleImportModal()">Batal</button>
                 </div>
                 <div class="info-text" style="margin-top: 15px;">
                     <p>Tempel teks hasil ekspor ke kotak di atas, lalu tekan Import.</p>
@@ -210,20 +234,20 @@
     <div id="userManagementModal" class="modal-overlay" onclick="closeUserManagementModal()">
         <div class="modal-content modal-xlarge" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2>👑 Panel Super Admin</h2>
+                <h2>Panel Super Admin</h2>
                 <button class="close-modal" onclick="closeUserManagementModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <!-- Tab Navigation -->
                 <div class="tab-nav">
                     <button class="tab-btn active" onclick="switchTab('accessRequests')">
-                        🔔 Permintaan Akses <span id="pendingRequestsBadge" class="notification-badge"
+                        Permintaan Akses <span id="pendingRequestsBadge" class="notification-badge"
                             style="display: none;">0</span>
                     </button>
-                    <button class="tab-btn" onclick="switchTab('userManagement')">👥 Pengguna</button>
-                    <button class="tab-btn" onclick="switchTab('roleManagement')">🎭 Role</button>
-                    <button class="tab-btn" onclick="switchTab('systemConfig')">⚙️ Sistem</button>
-                    <button class="tab-btn" onclick="switchTab('auditLog')">📋 Audit Log</button>
+                    <button class="tab-btn" onclick="switchTab('userManagement')">Pengguna</button>
+                    <button class="tab-btn" onclick="switchTab('roleManagement')">Role</button>
+                    <button class="tab-btn" onclick="switchTab('systemConfig')">Sistem</button>
+                    <button class="tab-btn" onclick="switchTab('auditLog')">Audit Log</button>
                 </div>
 
                 <!-- Tab Content: Access Requests -->
@@ -243,7 +267,7 @@
                         </div>
                     </div>
 
-                    <h3 style="margin: 15px 0 10px 0;">📬 Daftar Permintaan Akses</h3>
+                    <h3 style="margin: 15px 0 10px 0;">Daftar Permintaan Akses</h3>
                     <div id="accessRequestsList" class="user-list-enhanced">
                         <!-- Access requests will be populated here -->
                     </div>
@@ -252,8 +276,7 @@
                 <!-- Tab Content: User Management -->
                 <div id="tab-userManagement" class="tab-content">
                     <div class="search-bar">
-                        <input type="text" id="userSearchInput" placeholder="🔍 Cari pengguna..."
-                            oninput="filterUsers()">
+                        <input type="text" id="userSearchInput" placeholder="Cari pengguna..." oninput="filterUsers()">
                     </div>
 
                     <div class="stats-grid">
@@ -276,7 +299,7 @@
                     </div>
 
                     <div class="super-admin-panel" style="margin-top: 15px;">
-                        <h3>➕ Tambah Pengguna Manually</h3>
+                        <h3>Tambah Pengguna Manually</h3>
                         <div class="form-group">
                             <label for="newUserEmail">Email</label>
                             <input type="email" id="newUserEmail" placeholder="contoh@gmail.com">
@@ -289,19 +312,19 @@
                             </select>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn-import" onclick="addNewUser()">➕ Tambah Pengguna</button>
+                            <button class="btn-import" onclick="addNewUser()">Tambah Pengguna</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tab Content: Role Management -->
                 <div id="tab-roleManagement" class="tab-content">
-                    <h3 style="margin-bottom: 15px;">🎭 Daftar Role</h3>
+                    <h3 style="margin-bottom: 15px;">Daftar Role</h3>
 
                     <!-- System Roles -->
                     <div class="role-card">
                         <div class="role-header">
-                            <span class="role-name">👑 Super Admin</span>
+                            <span class="role-name">Super Admin</span>
                             <span class="role-type-badge role-system">Sistem</span>
                         </div>
                         <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
@@ -318,7 +341,7 @@
 
                     <div class="role-card">
                         <div class="role-header">
-                            <span class="role-name">🔑 Admin</span>
+                            <span class="role-name">Admin</span>
                             <span class="role-type-badge role-system">Sistem</span>
                         </div>
                         <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
@@ -330,7 +353,7 @@
 
                 <div class="role-card">
                     <div class="role-header">
-                        <span class="role-name">👤 Staff</span>
+                        <span class="role-name">Staff</span>
                         <span class="role-type-badge role-system">Sistem</span>
                     </div>
                     <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
@@ -350,7 +373,7 @@
                 </div>
 
                 <div class="super-admin-panel" style="margin-top: 15px;">
-                    <h3>➕ Buat Role Kustom</h3>
+                    <h3>Buat Role Kustom</h3>
                     <div class="form-group">
                         <label for="newRoleName">Nama Role</label>
                         <input type="text" id="newRoleName" placeholder="Supervisor">
@@ -371,7 +394,7 @@
                         </div>
                     </div>
                     <div class="action-buttons">
-                        <button class="btn-import" onclick="createCustomRole()">➕ Buat Role</button>
+                        <button class="btn-import" onclick="createCustomRole()">Buat Role</button>
                     </div>
                 </div>
             </div>
@@ -379,7 +402,7 @@
             <!-- Tab Content: System Config -->
             <div id="tab-systemConfig" class="tab-content">
                 <div class="config-section">
-                    <h4>🎨 Tampilan</h4>
+                    <h4>Tampilan</h4>
                     <div class="config-item">
                         <div>
                             <div class="config-label">Tema Default</div>
@@ -394,7 +417,7 @@
                 </div>
 
                 <div class="config-section">
-                    <h4>🔐 Keamanan</h4>
+                    <h4>Keamanan</h4>
                     <div class="config-item">
                         <div>
                             <div class="config-label">Registrasi Terbuka</div>
@@ -423,7 +446,7 @@
                 </div>
 
                 <div class="config-section">
-                    <h4>📊 Data</h4>
+                    <h4>Data</h4>
                     <div class="config-item">
                         <div>
                             <div class="config-label">Auto-Lock Data</div>
@@ -435,15 +458,14 @@
                 </div>
 
                 <div class="action-buttons" style="margin-top: 15px;">
-                    <button onclick="saveSystemConfig()">💾 Simpan Konfigurasi</button>
+                    <button onclick="saveSystemConfig()">Simpan Konfigurasi</button>
                 </div>
             </div>
 
             <!-- Tab Content: Audit Log -->
             <div id="tab-auditLog" class="tab-content">
                 <div class="search-bar">
-                    <input type="text" id="auditSearchInput" placeholder="🔍 Cari aktivitas..."
-                        oninput="filterAuditLog()">
+                    <input type="text" id="auditSearchInput" placeholder="Cari aktivitas..." oninput="filterAuditLog()">
                     <select id="auditFilterType" onchange="filterAuditLog()"
                         style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary);">
                         <option value="all">Semua</option>
@@ -459,8 +481,8 @@
                 </div>
 
                 <div class="action-buttons" style="margin-top: 15px;">
-                    <button onclick="exportAuditLog()">📥 Export Log</button>
-                    <button class="btn-delete" onclick="clearAuditLog()">🗑️ Hapus Log Lama</button>
+                    <button onclick="exportAuditLog()">Export Log</button>
+                    <button class="btn-delete" onclick="clearAuditLog()">Hapus Log Lama</button>
                 </div>
             </div>
         </div>

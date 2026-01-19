@@ -7,90 +7,165 @@
    ===================================================== */
 
 .header {
-    background: linear-gradient(135deg, var(--bg-header) 0%, #34495e 100%);
-    color: var(--text-light);
-    padding: 16px 24px;
+    background: var(--bg-primary);
+    padding: 0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
+    flex-direction: column;
     flex-shrink: 0;
     border-bottom: 1px solid var(--border-color);
 }
 
 [data-theme="dark"] .header {
-    background: linear-gradient(135deg, #0f1419 0%, #15202b 100%);
-    border-bottom: 1px solid rgba(29, 155, 240, 0.2);
+    background: #15202b;
+    border-bottom-color: #2f3b4a;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .header-top {
+    border-bottom-color: #2f3b4a;
 }
 
 .header h1 {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    white-space: nowrap;
-    background: linear-gradient(135deg, #fff 0%, #a0aec0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
 }
 
-[data-theme="dark"] .header h1 {
-    background: linear-gradient(135deg, #f7f9f9 0%, #1d9bf0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* =====================================================
-   MONTH NAVIGATION
-   ===================================================== */
-
-.month-navigation {
+.header-actions {
     display: flex;
     align-items: center;
     gap: 8px;
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 6px;
-    border-radius: 10px;
 }
 
-.month-navigation button {
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     background: transparent;
-    color: var(--text-light);
-    border: 1px solid transparent;
-    padding: 8px 12px;
-    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
-.month-navigation button:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-}
-
-.month-navigation button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.btn-icon:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
     transform: none;
+    box-shadow: none;
+}
+
+.btn-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+    transform: none;
+    box-shadow: none;
+}
+
+/* =====================================================
+   HEADER NAVIGATION
+   ===================================================== */
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .header-nav {
+    background: #192734;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 0 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.nav-btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    transform: none;
+    box-shadow: none;
+}
+
+.nav-btn.today-btn {
+    padding: 0 14px;
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+.nav-btn.today-btn:hover {
+    background: var(--accent-color);
+    color: white;
 }
 
 .current-month {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0 12px;
+    min-width: 140px;
     text-align: center;
-    color: var(--text-light);
-    padding: 0 10px;
-    min-width: 150px;
 }
 
 /* =====================================================
@@ -198,14 +273,19 @@ button:active {
 }
 
 .icon-btn {
-    font-size: 24px;
-    padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 13px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: var(--text-light);
+    font-weight: 500;
 }
 
 .icon-btn:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: none;
+    box-shadow: none;
 }
 
 /* Unsaved Changes Indicator */

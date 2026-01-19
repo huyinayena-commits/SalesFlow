@@ -35,7 +35,7 @@ async function loadUsers() {
         if (snapshot.empty) {
             userList.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon">👥</div>
+                    <div class="empty-state-icon"></div>
                     <div class="empty-state-text">Belum ada pengguna</div>
                 </div>
             `;
@@ -66,7 +66,7 @@ async function loadUsers() {
                     </div>
                     <div class="user-item-actions">
                         <button onclick="toggleUserStatus('${doc.id}', ${data.active})">
-                            ${data.active ? '🚫 Nonaktifkan' : '✅ Aktifkan'}
+                            ${data.active ? 'Nonaktifkan' : 'Aktifkan'}
                         </button>
                         <select onchange="changeUserRole('${doc.id}', this.value)" style="padding: 6px; border-radius: 6px;">
                             <option value="staff" ${data.role === 'staff' ? 'selected' : ''}>Staff</option>
@@ -304,7 +304,7 @@ async function loadAuditLogs() {
         if (snapshot.empty) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-icon"></div>
                     <div class="empty-state-text">Belum ada riwayat aktivitas</div>
                 </div>
             `;
@@ -316,14 +316,14 @@ async function loadAuditLogs() {
             const data = doc.data();
             const date = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();
             const timeStr = date.toLocaleString('id-ID');
-            let icon = '📝';
+            let icon = '';
             let iconClass = '';
 
             switch (data.actionType) {
-                case 'login': icon = '🔑'; iconClass = 'action-login'; break;
-                case 'user': icon = '👥'; iconClass = 'action-user'; break;
-                case 'config': icon = '⚙️'; iconClass = 'action-config'; break;
-                case 'security': icon = '🛡️'; iconClass = 'action-security'; break;
+                case 'login': icon = 'L'; iconClass = 'action-login'; break;
+                case 'user': icon = 'U'; iconClass = 'action-user'; break;
+                case 'config': icon = 'C'; iconClass = 'action-config'; break;
+                case 'security': icon = 'S'; iconClass = 'action-security'; break;
             }
 
             html += `

@@ -19,9 +19,9 @@ table {
     border-spacing: 0;
     font-size: 14px;
     table-layout: auto;
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 24px var(--shadow);
+    box-shadow: 0 2px 8px var(--shadow);
 }
 
 /* =====================================================
@@ -30,50 +30,39 @@ table {
 
 th {
     color: var(--text-light);
-    padding: 16px 12px;
+    padding: 14px 10px;
     text-align: center;
-    font-weight: 700;
+    font-weight: 600;
     border: none;
-    border-bottom: 2px solid var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 10;
     white-space: nowrap;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.main-header {
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    padding: 18px 12px;
-    border-bottom: 3px solid var(--accent-color);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] .main-header {
-    background: linear-gradient(180deg, #1a2744 0%, #0d1421 100%);
-    border-bottom-color: #1d9bf0;
-}
-
-.sub-header {
-    font-size: 11px;
-    font-weight: 600;
-    background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
-    padding: 12px 8px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    color: #94a3b8;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
 }
 
-[data-theme="dark"] .sub-header {
-    background: linear-gradient(180deg, #1e2d3d 0%, #15202b 100%);
-    color: #8b98a5;
-    border-bottom-color: rgba(29, 155, 240, 0.3);
+.main-header {
+    background: var(--table-header-bg);
+    color: var(--table-header-text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 14px 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sub-header {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--table-subheader-bg);
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--table-subheader-text);
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
 }
 
 /* =====================================================
@@ -91,16 +80,6 @@ td {
 }
 
 tr:hover td {
-    background-color: var(--hover-bg);
-    transform: scale(1.01);
-}
-
-/* Zebra stripes untuk dark mode */
-[data-theme="dark"] tbody tr:nth-child(even) td {
-    background-color: #121820;
-}
-
-[data-theme="dark"] tbody tr:nth-child(even):hover td {
     background-color: var(--hover-bg);
 }
 

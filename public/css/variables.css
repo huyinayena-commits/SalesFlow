@@ -7,45 +7,51 @@
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
     --bg-header: #2c3e50;
-    
+
     /* Text Colors */
     --text-primary: #212529;
     --text-secondary: #6c757d;
     --text-light: #ffffff;
-    
+
     /* Border & Shadows */
     --border-color: #dee2e6;
     --hover-bg: #e2e6ea;
     --shadow: rgba(0, 0, 0, 0.1);
-    
+
     /* Accent Colors */
     --accent-color: #007bff;
     --accent-hover: #0056b3;
     --accent-positive: #28a745;
     --accent-positive-hover: #218838;
-    
+
     /* Weekend */
     --weekend-bg: #fff8dc;
     --weekend-hover: #ffecb5;
-    
+
     /* Input */
     --input-focus: #0d6efd;
     --input-bg: #ffffff;
-    
+
     /* Growth */
     --growth-positive: #198754;
     --growth-negative: #dc3545;
-    
+
     /* Actions */
     --delete-bg: #dc3545;
     --delete-hover: #c82333;
-    
+
     /* Highlights */
     --highlight-bg: rgba(13, 110, 253, 0.1);
     --selected-bg: rgba(13, 110, 253, 0.4);
     --manual-override-border: #fd7e14;
     --locked-bg: #e9ecef;
     --warning-color: #dc3545;
+
+    /* Table Header */
+    --table-header-bg: #2c3e50;
+    --table-header-text: #ffffff;
+    --table-subheader-bg: #34495e;
+    --table-subheader-text: #ecf0f1;
 }
 
 /* Dark Theme */
@@ -54,50 +60,56 @@
     --bg-primary: #0f1419;
     --bg-secondary: #15202b;
     --bg-header: #1a1f2e;
-    
+
     /* Text Colors */
     --text-primary: #f7f9f9;
     --text-secondary: #8b98a5;
     --text-light: #ffffff;
-    
+
     /* Border & Shadows */
     --border-color: #2f3b4a;
     --hover-bg: #1e2d3d;
     --shadow: rgba(0, 0, 0, 0.7);
-    
+
     /* Accent Colors */
     --accent-color: #1d9bf0;
     --accent-hover: #1a8cd8;
     --accent-positive: #00ba7c;
     --accent-positive-hover: #00a06a;
-    
+
     /* Weekend */
     --weekend-bg: #1c2732;
     --weekend-hover: #253341;
-    
+
     /* Input */
     --input-focus: #1d9bf0;
     --input-bg: #1e2d3d;
-    
+
     /* Growth */
     --growth-positive: #00ba7c;
     --growth-negative: #f4212e;
-    
+
     /* Actions */
     --delete-bg: #f4212e;
     --delete-hover: #dc1d28;
-    
+
     /* Highlights */
     --highlight-bg: rgba(29, 155, 240, 0.15);
     --selected-bg: rgba(29, 155, 240, 0.45);
     --manual-override-border: #ffad1f;
     --locked-bg: #1c2732;
     --warning-color: #f4212e;
-    
+
     /* Additional Dark Mode Variables */
     --header-primary: linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%);
     --header-secondary: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
     --header-accent: #1d9bf0;
     --row-alt-bg: #121820;
     --table-border: #2a3544;
+
+    /* Table Header */
+    --table-header-bg: #1a1f2e;
+    --table-header-text: #f7f9f9;
+    --table-subheader-bg: #252d3d;
+    --table-subheader-text: #cbd5e1;
 }

@@ -248,65 +248,67 @@
         border-collapse: collapse;
         border: none;
         background: transparent;
-        /* Remove container bg */
     }
 
     /* Modern Dark Header */
     [data-theme="dark"] .main-header {
-        background: #161b22;
-        /* Github Dark Dim layout */
-        color: #8b949e;
-        border-bottom: 2px solid #30363d;
+        background: var(--table-header-bg);
+        /* Use shared semi-transparent var */
+        color: var(--text-secondary);
+        border-bottom: 2px solid var(--border-color);
         text-transform: uppercase;
         font-size: 11px;
-        /* Slightly smaller aesthetic text */
         letter-spacing: 1px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
     [data-theme="dark"] .sub-header {
-        background: #0d1117;
-        color: #c9d1d9;
-        border-bottom: 1px solid #30363d;
+        background: var(--table-subheader-bg);
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-color);
         font-weight: 500;
+        backdrop-filter: blur(8px);
     }
 
     /* Modern Rows */
     [data-theme="dark"] td {
-        background: #0d1117;
-        /* Very dark blue-gray */
-        border-bottom: 1px solid #21262d;
-        color: #e6edf3;
+        background: transparent;
+        /* Glass effect */
+        border-bottom: 1px solid var(--table-border);
+        color: var(--text-primary);
     }
 
-    /* Alternating rows for subtle depth */
+    /* Alternating rows for subtle depth - Low opacity */
     [data-theme="dark"] tbody tr:nth-child(odd) td {
-        background: rgba(22, 27, 34, 0.5);
+        background: var(--row-alt-bg);
     }
 
     /* Highlighted Rows/Cells */
     [data-theme="dark"] tr:hover td {
-        background: #1f2937 !important;
+        background: var(--hover-bg) !important;
     }
 
     /* Modern Neon Inputs */
     [data-theme="dark"] td input {
         background: transparent;
         border-bottom: 1px solid transparent;
-        /* Hidden by default */
-        color: #58a6ff;
-        /* Soft blue like VSCode/Github links */
+        color: var(--accent-color);
         font-weight: 500;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         padding: 12px 6px;
     }
 
     [data-theme="dark"] td input:focus {
-        background: rgba(56, 139, 253, 0.1);
-        border-bottom: 2px solid #58a6ff;
-        box-shadow: 0 4px 0 rgba(88, 166, 255, 0.1);
-        /* Subtle glow under */
+        background: rgba(56, 139, 253, 0.05);
+        /* Simpler focus bg */
+        border-bottom: 2px solid var(--accent-color);
+        box-shadow: 0 4px 12px rgba(88, 166, 255, 0.15);
+        /* Stronger neon glow */
         transform: translateY(-1px);
         color: #ffffff;
+        text-shadow: 0 0 8px rgba(88, 166, 255, 0.5);
+        /* Neon text effect on focus */
     }
 
     /* Sticky Columns Depth */
@@ -314,25 +316,26 @@
     [data-theme="dark"] td:first-child,
     [data-theme="dark"] th:nth-child(2),
     [data-theme="dark"] td:nth-child(2) {
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-        /* Stronger shadow for depth */
+        /* Add background to sticky columns to cover scrolling content underneath */
+        background: var(--bg-primary);
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.6);
         z-index: 5;
+        border-right: 1px solid var(--border-color);
     }
 
     /* Date Cell Special Styling */
     [data-theme="dark"] .date-cell {
-        color: #c9d1d9;
+        color: var(--text-light);
         font-weight: 600;
-        background: #161b22 !important;
-        /* Standout background for dates */
+        /* Ensure sticky date has solid (or blurred) background */
+        background: var(--bg-primary) !important;
     }
 
     /* FAB Modern Glow */
     [data-theme="dark"] .fab {
-        background: #238636;
-        /* Github Green */
-        box-shadow: 0 0 20px rgba(35, 134, 54, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--accent-positive);
+        box-shadow: 0 0 20px rgba(35, 134, 54, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 }
 

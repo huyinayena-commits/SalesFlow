@@ -16,7 +16,10 @@ body {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    /* Use gradient if available, else fallback to secondary color */
+    background: var(--body-bg-gradient, var(--bg-secondary));
     background-color: var(--bg-secondary);
+    /* Fallback */
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
@@ -27,12 +30,17 @@ body {
     max-width: 100%;
     height: 100%;
     margin: 0 auto;
-    background-color: var(--bg-primary);
-    box-shadow: 0 4px 16px var(--shadow);
+    /* Use a semi-transparent background for glassmorphism support */
+    background-color: var(--bg-secondary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 24px var(--shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    border: 1px solid var(--border-color);
+    /* Subtle border for glass edge */
 }
 
 /* =====================================================

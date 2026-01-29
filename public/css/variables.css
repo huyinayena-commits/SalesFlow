@@ -54,62 +54,69 @@
     --table-subheader-text: #ecf0f1;
 }
 
-/* Dark Theme */
+/* Dark Theme - Premium Visual Overhaul */
 [data-theme="dark"] {
-    /* Background Colors */
-    --bg-primary: #0f1419;
-    --bg-secondary: #15202b;
-    --bg-header: #1a1f2e;
+    /* Background Colors representing Deep Space / Dashboard */
+    --bg-primary: #0b101a;
+    /* Background dasar yang sangat gelap */
+    --bg-secondary: rgba(22, 27, 34, 0.6);
+    /* Glass effect base */
+    --bg-header: rgba(13, 17, 23, 0.85);
+    /* Header transparan */
 
     /* Text Colors */
-    --text-primary: #f7f9f9;
-    --text-secondary: #8b98a5;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
     --text-light: #ffffff;
 
     /* Border & Shadows */
-    --border-color: #2f3b4a;
-    --hover-bg: #1e2d3d;
-    --shadow: rgba(0, 0, 0, 0.7);
+    --border-color: rgba(56, 139, 253, 0.15);
+    /* Subtle blue border */
+    --hover-bg: rgba(56, 139, 253, 0.1);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 
-    /* Accent Colors */
-    --accent-color: #1d9bf0;
-    --accent-hover: #1a8cd8;
-    --accent-positive: #00ba7c;
-    --accent-positive-hover: #00a06a;
+    /* Accent Colors - Neon Cyan/Blue */
+    --accent-color: #2f81f7;
+    --accent-hover: #58a6ff;
+    --accent-positive: #238636;
+    --accent-positive-hover: #2ea043;
 
     /* Weekend */
-    --weekend-bg: #1c2732;
-    --weekend-hover: #253341;
+    --weekend-bg: rgba(22, 27, 34, 0.8);
+    --weekend-hover: rgba(30, 40, 50, 0.9);
 
     /* Input */
-    --input-focus: #1d9bf0;
-    --input-bg: #1e2d3d;
+    --input-focus: #58a6ff;
+    --input-bg: rgba(13, 17, 23, 0.5);
 
     /* Growth */
-    --growth-positive: #00ba7c;
-    --growth-negative: #f4212e;
+    --growth-positive: #3fb950;
+    --growth-negative: #f85149;
 
     /* Actions */
-    --delete-bg: #f4212e;
-    --delete-hover: #dc1d28;
+    --delete-bg: #da3633;
+    --delete-hover: #b62324;
 
     /* Highlights */
-    --highlight-bg: rgba(29, 155, 240, 0.15);
-    --selected-bg: rgba(29, 155, 240, 0.45);
-    --manual-override-border: #ffad1f;
-    --locked-bg: #1c2732;
-    --warning-color: #f4212e;
+    --highlight-bg: rgba(56, 139, 253, 0.2);
+    --selected-bg: rgba(56, 139, 253, 0.25);
+    --manual-override-border: #d29922;
+    --locked-bg: rgba(22, 27, 34, 0.9);
+    --warning-color: #d29922;
 
     /* Additional Dark Mode Variables */
-    --header-primary: linear-gradient(135deg, #1a1f2e 0%, #252d3d 100%);
+    --header-primary: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
     --header-secondary: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
-    --header-accent: #1d9bf0;
-    --row-alt-bg: #121820;
-    --table-border: #2a3544;
+    --header-accent: #58a6ff;
+    --row-alt-bg: rgba(22, 27, 34, 0.3);
+    --table-border: #30363d;
 
     /* Table Header */
-    --table-header-bg: #1a1f2e;
-    --table-header-text: #f7f9f9;
-    --table-subheader-bg: #252d3d;
-    --table-subheader-text: #cbd5e1;
+    --table-header-bg: #161b22;
+    --table-header-text: #f0f6fc;
+    --table-subheader-bg: #0d1117;
+    --table-subheader-text: #8b949e;
+
+    /* Background Gradient for Body */
+    --body-bg-gradient: radial-gradient(circle at 50% 0%, #1f293a 0%, #0b101a 80%);
 }

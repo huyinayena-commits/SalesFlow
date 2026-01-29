@@ -10,7 +10,8 @@
     flex-grow: 1;
     overflow: auto;
     padding: 0 15px 15px 15px;
-    background-color: var(--bg-secondary);
+    background-color: transparent;
+    /* Wrapper transparent inside glass container */
 }
 
 table {
@@ -29,7 +30,8 @@ table {
    ===================================================== */
 
 th {
-    color: var(--text-light);
+    color: var(--text-secondary);
+    /* Muted header text */
     padding: 14px 10px;
     text-align: center;
     font-weight: 600;
@@ -41,17 +43,23 @@ th {
     white-space: nowrap;
     font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    /* Backdrop blur for sticky headers */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .main-header {
     background: var(--table-header-bg);
-    color: var(--table-header-text);
+    /* Use rgba variable for transparency */
+    color: var(--text-light);
+    /* Highlight main headers */
     font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 14px 10px;
-    border-bottom: 1px solid var(--border-color);
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 16px 10px;
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .sub-header {
@@ -73,9 +81,11 @@ td {
     padding: 10px 8px;
     text-align: center;
     border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-primary);
+    background-color: transparent;
+    /* Transparent for glass effect */
     transition: all 0.2s ease;
     min-width: 100px;
+    color: var(--text-primary);
 }
 
 tr:hover td {

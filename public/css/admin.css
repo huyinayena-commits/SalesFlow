@@ -7,11 +7,12 @@
    ===================================================== */
 
 .super-admin-panel {
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 217, 61, 0.1));
-    border: 2px solid rgba(255, 107, 107, 0.3);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.05), rgba(99, 102, 241, 0.05));
+    border: 1px solid rgba(56, 189, 248, 0.2);
     border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.05);
 }
 
 .super-admin-panel h3 {
@@ -30,11 +31,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border-left: 4px solid var(--accent-color);
+    padding: 14px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent-color);
+    transition: all 0.2s ease;
+}
+
+.access-request-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(2px);
 }
 
 .access-request-item.pending {
@@ -150,21 +158,24 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    background-color: var(--bg-secondary);
-    border-radius: 10px;
-    margin-bottom: 10px;
+    padding: 16px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 12px;
     transition: all 0.2s ease;
 }
 
 .user-item-enhanced:hover {
-    transform: translateX(5px);
-    box-shadow: 0 2px 8px var(--shadow);
+    transform: translateX(4px);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
 }
 
 .user-item-enhanced.inactive {
     opacity: 0.6;
-    border-left: 4px solid #dc3545;
+    border-left: 3px solid #dc3545;
 }
 
 .user-avatar {
@@ -220,10 +231,17 @@
    ===================================================== */
 
 .role-card {
-    background-color: var(--bg-secondary);
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.role-card:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
 }
 
 .role-header {
@@ -352,10 +370,11 @@
    ===================================================== */
 
 .config-section {
-    background-color: var(--bg-secondary);
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .config-section h4 {
@@ -407,24 +426,25 @@
     padding: 8px 16px;
     background: transparent;
     border: none;
+    border-bottom: 2px solid transparent;
     color: var(--text-secondary);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.2s;
+    border-radius: 0;
+    transition: all 0.3s ease;
     white-space: nowrap;
 }
 
 .tab-btn:hover {
-    background-color: var(--hover-bg);
-    transform: none;
-    box-shadow: none;
+    color: var(--text-primary);
+    background: transparent;
 }
 
 .tab-btn.active {
-    background-color: var(--accent-color);
-    color: white;
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+    background: linear-gradient(0deg, rgba(56, 189, 248, 0.1), transparent);
 }
 
 .tab-content {
@@ -447,17 +467,20 @@
 
 .search-bar input {
     flex: 1;
-    padding: 10px 15px;
-    border: 2px solid var(--border-color);
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 14px;
-    background-color: var(--input-bg);
+    background-color: rgba(15, 24, 43, 0.6);
     color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .search-bar input:focus {
     outline: none;
-    border-color: var(--input-focus);
+    border-color: var(--accent-color);
+    background-color: rgba(15, 24, 43, 0.9);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
 }
 
 /* =====================================================

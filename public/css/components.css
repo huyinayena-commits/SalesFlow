@@ -315,19 +315,27 @@ button:active {
 }
 
 .btn-import {
-    background-color: #28a745;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .btn-import:hover {
-    background-color: #218838;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.3));
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+    transform: translateY(-2px);
 }
 
 .btn-delete {
-    background-color: var(--delete-bg);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .btn-delete:hover {
-    background-color: var(--delete-hover);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.3));
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    transform: translateY(-2px);
 }
 
 /* =====================================================
@@ -426,37 +434,39 @@ button:active {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0s 0.3s;
+    transition: all 0.3s ease;
 }
 
 .modal-overlay.show {
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.3s ease, visibility 0s 0s;
 }
 
 .modal-content {
-    background-color: var(--bg-primary);
-    padding: 20px;
-    border-radius: 12px;
+    background: var(--bg-primary);
+    background: linear-gradient(145deg, rgba(15, 24, 43, 0.95), rgba(10, 17, 34, 0.98));
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
     width: 90%;
-    max-width: 400px;
-    box-shadow: 0 5px 25px var(--shadow);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
+    max-width: 450px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.1);
+    transform: scale(0.95) translateY(10px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     max-height: 90vh;
     overflow-y: auto;
 }
 
 .modal-overlay.show .modal-content {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
 }
 
 .modal-header {
@@ -495,7 +505,19 @@ button:active {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.modal-body .setting-item:hover {
+    background: rgba(56, 189, 248, 0.05);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+    transform: translateX(4px);
 }
 
 .modal-body h3 {
@@ -519,10 +541,12 @@ button:active {
 
 .modal-body .info-text {
     margin-top: 20px;
-    padding: 10px;
-    background-color: var(--bg-secondary);
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 12px;
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #fcd34d;
 }
 
 .modal-body .info-text p {
@@ -546,33 +570,38 @@ button:active {
 
 .toggle-switch {
     position: relative;
-    width: 50px;
-    height: 26px;
-    background-color: var(--border-color);
-    border-radius: 13px;
+    width: 46px;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .toggle-switch.active {
-    background-color: var(--accent-positive);
+    background-color: rgba(56, 189, 248, 0.2);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
 .toggle-switch::after {
     content: '';
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 20px;
-    height: 20px;
-    background-color: white;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background-color: var(--text-secondary);
     border-radius: 50%;
-    transition: transform 0.3s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .toggle-switch.active::after {
-    transform: translateX(24px);
+    transform: translateX(22px);
+    background-color: var(--accent-color);
+    box-shadow: 0 0 8px var(--accent-color);
 }
 
 /* =====================================================
@@ -580,7 +609,7 @@ button:active {
    ===================================================== */
 
 .theme-toggle {
-    background-color: var(--bg-secondary);
+    background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     padding: 8px 14px;
@@ -595,9 +624,10 @@ button:active {
 }
 
 .theme-toggle:hover {
-    background-color: var(--hover-bg);
-    transform: none;
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+    transform: translateY(-1px);
 }
 
 /* =====================================================

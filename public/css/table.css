@@ -10,8 +10,7 @@
     flex-grow: 1;
     overflow: auto;
     padding: 0 15px 15px 15px;
-    background-color: transparent;
-    /* Wrapper transparent inside glass container */
+    background-color: var(--bg-secondary);
 }
 
 table {
@@ -31,8 +30,7 @@ table {
 
 th {
     color: var(--text-secondary);
-    /* Muted header text */
-    padding: 14px 10px;
+    padding: 12px 8px;
     text-align: center;
     font-weight: 600;
     border: none;
@@ -41,36 +39,35 @@ th {
     top: 0;
     z-index: 10;
     white-space: nowrap;
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    /* Backdrop blur for sticky headers */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--table-header-bg);
+    backdrop-filter: blur(8px);
 }
 
 .main-header {
     background: var(--table-header-bg);
-    /* Use rgba variable for transparency */
-    color: var(--text-light);
-    /* Highlight main headers */
-    font-size: 13px;
+    color: var(--table-header-text);
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 1px;
-    padding: 16px 10px;
-    border-bottom: 2px solid var(--border-color);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 14px 10px;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
 .sub-header {
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 10px;
+    font-weight: 600;
     background: var(--table-subheader-bg);
     padding: 10px 8px;
     border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     color: var(--table-subheader-text);
     text-transform: uppercase;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.5px;
 }
 
 /* =====================================================
@@ -78,14 +75,19 @@ th {
    ===================================================== */
 
 td {
-    padding: 10px 8px;
+    padding: 8px 6px;
     text-align: center;
     border-bottom: 1px solid var(--border-color);
-    background-color: transparent;
-    /* Transparent for glass effect */
+    border-right: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
     transition: all 0.2s ease;
     min-width: 100px;
-    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Remove right border for last child */
+td:last-child {
+    border-right: none;
 }
 
 tr:hover td {
@@ -181,17 +183,17 @@ tr.weekend.highlight-today td {
 td input {
     width: 100%;
     min-width: 90px;
-    border: none;
-    border-bottom: 1px dashed var(--border-color);
+    border: 1px solid transparent;
+    border-radius: 4px;
     background: transparent;
     text-align: right;
     padding: 8px 6px;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-primary);
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     box-sizing: border-box;
-    font-weight: 600;
+    font-weight: 500;
     cursor: text;
 }
 

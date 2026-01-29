@@ -16,8 +16,9 @@
 }
 
 [data-theme="dark"] .header {
-    background: #15202b;
-    border-bottom-color: #2f3b4a;
+    background: var(--header-primary);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .header-top {
@@ -73,20 +74,24 @@
 }
 
 .btn-primary {
-    background: var(--accent-color);
-    color: white;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    color: #fff;
     border: none;
-    padding: 8px 16px;
+    padding: 9px 18px;
     border-radius: 6px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .btn-primary:hover {
-    background: var(--accent-hover);
-    transform: none;
-    box-shadow: none;
+    background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
 }
 
 .btn-secondary {
@@ -265,7 +270,7 @@ button {
 button:hover {
     background-color: var(--accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
 }
 
 button:active {
@@ -615,18 +620,20 @@ button:active {
 .form-group select {
     width: 100%;
     padding: 12px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    font-size: 16px;
-    background-color: var(--input-bg);
+    font-size: 15px;
+    background-color: rgba(15, 24, 43, 0.6);
     color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--input-focus);
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    border-color: var(--accent-color);
+    background-color: rgba(15, 24, 43, 0.9);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
 }
 
 /* =====================================================

@@ -15,11 +15,9 @@ body {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    /* Use gradient if available, else fallback to secondary color */
-    background: var(--body-bg-gradient, var(--bg-secondary));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--bg-secondary);
-    /* Fallback */
+    background-image: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.1) 0%, rgba(0, 0, 0, 0) 50%);
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
@@ -30,17 +28,18 @@ body {
     max-width: 100%;
     height: 100%;
     margin: 0 auto;
-    /* Use a semi-transparent background for glassmorphism support */
-    background-color: var(--bg-secondary);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 24px var(--shadow);
+    background-color: var(--bg-primary);
+    box-shadow: 0 4px 16px var(--shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    border: 1px solid var(--border-color);
-    /* Subtle border for glass edge */
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .container {
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.1);
 }
 
 /* =====================================================
@@ -72,10 +71,11 @@ body {
 .loading-spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #fff;
+    border: 3px solid rgba(56, 189, 248, 0.1);
+    border-top-color: var(--accent-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    box-shadow: var(--glow-primary);
 }
 
 .loading-text {

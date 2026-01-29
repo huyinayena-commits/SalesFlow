@@ -54,69 +54,79 @@
     --table-subheader-text: #ecf0f1;
 }
 
-/* Dark Theme - Premium Visual Overhaul */
+/* Dark Theme - Futuristic Style */
 [data-theme="dark"] {
-    /* Background Colors representing Deep Space / Dashboard */
-    --bg-primary: #0b101a;
-    /* Background dasar yang sangat gelap */
-    --bg-secondary: rgba(22, 27, 34, 0.6);
-    /* Glass effect base */
-    --bg-header: rgba(13, 17, 23, 0.85);
-    /* Header transparan */
+    /* Background Colors */
+    --bg-primary: #050a14;
+    /* Deepest blue/black */
+    --bg-secondary: #0a1122;
+    /* Slightly lighter deep blue */
+    --bg-header: #0f182b;
+    /* Header background */
 
     /* Text Colors */
-    --text-primary: #e6edf3;
-    --text-secondary: #8b949e;
+    --text-primary: #e6f1ff;
+    /* Bright cool white */
+    --text-secondary: #94a3b8;
+    /* Blue-grey */
     --text-light: #ffffff;
 
     /* Border & Shadows */
-    --border-color: rgba(56, 139, 253, 0.15);
-    /* Subtle blue border */
-    --hover-bg: rgba(56, 139, 253, 0.1);
-    --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --border-color: rgba(56, 189, 248, 0.15);
+    /* Subtle cyan border */
+    --hover-bg: rgba(56, 189, 248, 0.08);
+    /* Hover effect */
+    --shadow: rgba(0, 0, 0, 0.5);
 
-    /* Accent Colors - Neon Cyan/Blue */
-    --accent-color: #2f81f7;
-    --accent-hover: #58a6ff;
-    --accent-positive: #238636;
-    --accent-positive-hover: #2ea043;
+    /* Accent Colors */
+    --accent-color: #38bdf8;
+    /* Cyan/Light Blue */
+    --accent-hover: #0ea5e9;
+    --accent-positive: #10b981;
+    /* Emerald Green */
+    --accent-positive-hover: #059669;
 
     /* Weekend */
-    --weekend-bg: rgba(22, 27, 34, 0.8);
-    --weekend-hover: rgba(30, 40, 50, 0.9);
+    --weekend-bg: rgba(255, 99, 132, 0.05);
+    /* Very subtle red tint */
+    --weekend-hover: rgba(255, 99, 132, 0.1);
 
     /* Input */
-    --input-focus: #58a6ff;
-    --input-bg: rgba(13, 17, 23, 0.5);
+    --input-focus: #38bdf8;
+    --input-bg: rgba(15, 24, 43, 0.8);
 
     /* Growth */
-    --growth-positive: #3fb950;
-    --growth-negative: #f85149;
+    --growth-positive: #34d399;
+    /* Bright Green */
+    --growth-negative: #f87171;
+    /* Bright Red */
 
     /* Actions */
-    --delete-bg: #da3633;
-    --delete-hover: #b62324;
+    --delete-bg: rgba(239, 68, 68, 0.2);
+    --delete-hover: rgba(239, 68, 68, 0.4);
 
     /* Highlights */
-    --highlight-bg: rgba(56, 139, 253, 0.2);
-    --selected-bg: rgba(56, 139, 253, 0.25);
-    --manual-override-border: #d29922;
-    --locked-bg: rgba(22, 27, 34, 0.9);
-    --warning-color: #d29922;
+    --highlight-bg: rgba(56, 189, 248, 0.2);
+    --selected-bg: rgba(56, 189, 248, 0.25);
+    --manual-override-border: #f59e0b;
+    /* Amber */
+    --locked-bg: #0f172a;
+    --warning-color: #ef4444;
 
     /* Additional Dark Mode Variables */
-    --header-primary: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
-    --header-secondary: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
-    --header-accent: #58a6ff;
-    --row-alt-bg: rgba(22, 27, 34, 0.3);
-    --table-border: #30363d;
+    --header-primary: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+    --header-secondary: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --header-accent: #38bdf8;
+    --row-alt-bg: rgba(30, 41, 59, 0.3);
+    --table-border: rgba(148, 163, 184, 0.1);
 
     /* Table Header */
-    --table-header-bg: #161b22;
-    --table-header-text: #f0f6fc;
-    --table-subheader-bg: #0d1117;
-    --table-subheader-text: #8b949e;
+    --table-header-bg: rgba(15, 23, 42, 0.95);
+    --table-header-text: #e2e8f0;
+    --table-subheader-bg: rgba(30, 41, 59, 0.8);
+    --table-subheader-text: #cbd5e1;
 
-    /* Background Gradient for Body */
-    --body-bg-gradient: radial-gradient(circle at 50% 0%, #1f293a 0%, #0b101a 80%);
+    /* Glow Effects */
+    --glow-primary: 0 0 10px rgba(56, 189, 248, 0.3);
+    --glow-text: 0 0 5px rgba(226, 232, 240, 0.3);
 }

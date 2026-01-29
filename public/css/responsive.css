@@ -278,10 +278,7 @@
         color: #e6edf3;
     }
 
-    /* Alternating rows for subtle depth */
-    [data-theme="dark"] tbody tr:nth-child(odd) td {
-        background: rgba(22, 27, 34, 0.5);
-    }
+    /* Alternating rows removed */
 
     /* Highlighted Rows/Cells */
     [data-theme="dark"] tr:hover td {

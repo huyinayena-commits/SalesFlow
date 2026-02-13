@@ -37,15 +37,17 @@ function switchTab(shortName) {
 function openUserManagementModal() {
     const modal = document.getElementById('userManagementModal');
     if (modal) {
-        modal.style.display = 'flex';
-        // Default load access requests
+        // Tutup settings modal dulu
+        document.getElementById('settingsModal')?.classList.remove('show');
+        // Tampilkan admin modal
+        modal.classList.add('show');
         switchAdminTab('tabAccessRequests');
     }
 }
 
 function closeUserManagementModal() {
     const modal = document.getElementById('userManagementModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('show');
 }
 
 // =====================================================

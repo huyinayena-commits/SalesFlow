@@ -242,16 +242,16 @@ function generateTableStructure() {
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="2"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="3"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="4"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="5"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="6"></td>
+            <td class="achm-td" data-row="${day - 1}" data-value="0"></td>
+            <td class="growth-td" data-row="${day - 1}" data-type="spd"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="7"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="8"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="9"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="10"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="11"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="12"></td>
+            <td class="growth-td" data-row="${day - 1}" data-type="std"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="13"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="14"></td>
+            <td class="growth-td" data-row="${day - 1}" data-type="apc"></td>
         `;
         tbody.appendChild(row);
 
@@ -267,8 +267,9 @@ function generateTableStructure() {
 
 
 function setupInputEventListeners(inputs, rowIndex, totalDays) {
-    // Shift inputs (0, 1) dan struk inputs (7, 8) - manual input
-    [0, 1, 7, 8].forEach(index => {
+    // Shift inputs (0, 1) dan struk inputs (5, 6) - manual input
+    // Mapping: 0=salesS1, 1=salesS2, 2=total, 3=akm, 4=spd, 5=st1, 6=st2, 7=totalSt, 8=akmSt, 9=std, 10=apc
+    [0, 1, 5, 6].forEach(index => {
         const input = inputs[index];
         setupEnterNavigation(input, rowIndex, index, totalDays);
         input.addEventListener('input', function () {
@@ -278,8 +279,8 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
                 const totalInput = inputs[2];
                 delete totalInput.dataset.manual;
                 totalInput.classList.remove('manual-override');
-            } else if (index === 7 || index === 8) {
-                const totalInput = inputs[9];
+            } else if (index === 5 || index === 6) {
+                const totalInput = inputs[7];
                 delete totalInput.dataset.manual;
                 totalInput.classList.remove('manual-override');
             }
@@ -292,10 +293,10 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
         }
     });
 
-    // Total & AKM inputs (2, 3, 9, 10)
-    [2, 9, 3, 10].forEach(index => {
+    // Total & AKM inputs (2, 3, 7, 8)
+    [2, 7, 3, 8].forEach(index => {
         const input = inputs[index];
-        if (index === 2 || index === 9) {
+        if (index === 2 || index === 7) {
             setupTotalEnterJump(input, rowIndex, index, totalDays);
         }
         input.addEventListener('input', function () {
@@ -304,7 +305,7 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
             this.dataset.manual = hasValue ? 'true' : 'false';
             this.classList.toggle('manual-override', hasValue);
 
-            if ((index === 2 || index === 9) && hasValue) {
+            if ((index === 2 || index === 7) && hasValue) {
                 const totalVal = parseNumber(this.value);
                 const half = Math.floor(totalVal / 2);
                 const remainder = totalVal - half;
@@ -312,8 +313,8 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
                     inputs[0].value = formatNumber(half);
                     inputs[1].value = formatNumber(remainder);
                 } else {
-                    inputs[7].value = formatNumber(half);
-                    inputs[8].value = formatNumber(remainder);
+                    inputs[5].value = formatNumber(half);
+                    inputs[6].value = formatNumber(remainder);
                 }
             }
             handleRowChange(rowIndex);
@@ -327,7 +328,7 @@ function setupEnterNavigation(input, rowIndex, inputIndex, totalRows) {
         if (e.key === 'Enter') {
             e.preventDefault();
             const rows = document.getElementById('tableBody').rows;
-            const navOrder = [0, 1, 5, 7, 8];
+            const navOrder = [0, 1, 5, 6];
             const currentPos = navOrder.indexOf(inputIndex);
             let nextInput = null;
 
@@ -385,17 +386,20 @@ function populateTableData(data) {
 
         inputs[0].value = formatNumber(d.s1);
         inputs[1].value = formatNumber(d.s2);
-        inputs[5].value = formatNumber(d.achm || 0);
-        inputs[7].value = formatNumber(d.st1);
-        inputs[8].value = formatNumber(d.st2);
+        inputs[5].value = formatNumber(d.st1);
+        inputs[6].value = formatNumber(d.st2);
 
         inputs[2].value = formatNumber(d.totalNet);
         inputs[3].value = formatNumber(d.akmSales);
         inputs[4].value = formatNumber(d.spd);
-        inputs[9].value = formatNumber(d.totalStruk);
-        inputs[10].value = formatNumber(d.akmStruk);
-        inputs[11].value = formatNumber(d.std);
-        inputs[13].value = formatNumber(d.apc);
+        inputs[7].value = formatNumber(d.totalStruk);
+        inputs[8].value = formatNumber(d.akmStruk);
+        inputs[9].value = formatNumber(d.std);
+        inputs[10].value = formatNumber(d.apc);
+
+        // ACHM disimpan sebagai data attribute, akan dirender ulang saat calculateRow
+        const achmTd = rows[i].querySelector('.achm-td');
+        if (achmTd && d.achm) achmTd.dataset.value = d.achm;
 
         if (d.m_total) {
             inputs[2].dataset.manual = 'true';
@@ -406,12 +410,12 @@ function populateTableData(data) {
             inputs[3].classList.add('manual-override');
         }
         if (d.m_totalSt) {
-            inputs[9].dataset.manual = 'true';
-            inputs[9].classList.add('manual-override');
+            inputs[7].dataset.manual = 'true';
+            inputs[7].classList.add('manual-override');
         }
         if (d.m_akmSt) {
-            inputs[10].dataset.manual = 'true';
-            inputs[10].classList.add('manual-override');
+            inputs[8].dataset.manual = 'true';
+            inputs[8].classList.add('manual-override');
         }
     }
 }
@@ -460,35 +464,47 @@ function calculateRow(rowIndex) {
     inputs[4].value = formatNumber(spd);
 
     // Hitung ACHM otomatis: (SPD / Target SPD) * 100
+    const achmTd = row.querySelector('.achm-td');
     if (currentMonthTarget.targetSpd > 0 && spd > 0) {
         const achm = (spd / currentMonthTarget.targetSpd) * 100;
-        inputs[5].value = achm.toFixed(1) + '%';
+        if (achmTd) {
+            achmTd.dataset.value = achm;
+            achmTd.innerHTML = renderAchmCell(achm);
+        }
     } else {
-        inputs[5].value = '';
+        if (achmTd) {
+            achmTd.dataset.value = 0;
+            achmTd.innerHTML = '';
+        }
     }
 
-    const strukShift1 = parseNumber(inputs[7].value);
-    const strukShift2 = parseNumber(inputs[8].value);
+    const strukShift1 = parseNumber(inputs[5].value);
+    const strukShift2 = parseNumber(inputs[6].value);
 
-    if (inputs[9].dataset.manual !== 'true') {
-        inputs[9].value = formatNumber(strukShift1 + strukShift2);
+    if (inputs[7].dataset.manual !== 'true') {
+        inputs[7].value = formatNumber(strukShift1 + strukShift2);
     }
-    const totalStruk = parseNumber(inputs[9].value);
+    const totalStruk = parseNumber(inputs[7].value);
 
-    if (inputs[10].dataset.manual !== 'true') {
-        const prevAkm = rowIndex > 0 ? parseNumber(rows[rowIndex - 1].getElementsByTagName('input')[10].value) : 0;
-        inputs[10].value = formatNumber(totalStruk + prevAkm);
+    if (inputs[8].dataset.manual !== 'true') {
+        const prevAkm = rowIndex > 0 ? parseNumber(rows[rowIndex - 1].getElementsByTagName('input')[8].value) : 0;
+        inputs[8].value = formatNumber(totalStruk + prevAkm);
     }
-    const akmStruk = parseNumber(inputs[10].value);
+    const akmStruk = parseNumber(inputs[8].value);
     const std = akmStruk / (rowIndex + 1);
-    inputs[11].value = formatNumber(Math.floor(std));
+    inputs[9].value = formatNumber(Math.floor(std));
 
     const apc = (spd > 0 && std > 0) ? (spd / std) : 0;
-    inputs[13].value = formatNumber(apc);
+    inputs[10].value = formatNumber(apc);
 
-    inputs[6].value = '';
-    inputs[12].value = '';
-    inputs[14].value = '';
+    // Growth cells - ambil elemen div bukan input
+    const growthSpdTd = row.querySelector('.growth-td[data-type="spd"]');
+    const growthStdTd = row.querySelector('.growth-td[data-type="std"]');
+    const growthApcTd = row.querySelector('.growth-td[data-type="apc"]');
+
+    if (growthSpdTd) growthSpdTd.innerHTML = '';
+    if (growthStdTd) growthStdTd.innerHTML = '';
+    if (growthApcTd) growthApcTd.innerHTML = '';
 
     const prevYear = month === 0 ? year - 1 : year;
     const prevMonth = month === 0 ? 11 : month - 1;
@@ -503,20 +519,17 @@ function calculateRow(rowIndex) {
 
         if (spd > 0 && prevSpd > 0) {
             const growth = ((spd / prevSpd) - 1) * 100;
-            inputs[6].value = formatGrowth(growth);
-            applyGrowthColor(inputs[6], growth);
+            if (growthSpdTd) growthSpdTd.innerHTML = renderGrowthBadge(growth);
         }
 
         if (std > 0 && prevStd > 0) {
             const growth = ((std / prevStd) - 1) * 100;
-            inputs[12].value = formatGrowth(growth);
-            applyGrowthColor(inputs[12], growth);
+            if (growthStdTd) growthStdTd.innerHTML = renderGrowthBadge(growth);
         }
 
         if (apc > 0 && prevApc > 0) {
             const growth = ((apc / prevApc) - 1) * 100;
-            inputs[14].value = formatGrowth(growth);
-            applyGrowthColor(inputs[14], growth);
+            if (growthApcTd) growthApcTd.innerHTML = renderGrowthBadge(growth);
         }
     }
 }
@@ -548,11 +561,13 @@ function updateSummary() {
 
     for (let i = 0; i < rows.length - 1; i++) {
         const inputs = rows[i].getElementsByTagName('input');
+        // Setelah ACHM dan Growth jadi div, indexnya:
+        // 0=salesS1, 1=salesS2, 2=total, 3=akm, 4=spd, 5=st1, 6=st2, 7=totalSt, 8=akmSt, 9=std, 10=apc
         sumS1P += parseNumber(inputs[0].value);
         sumS2P += parseNumber(inputs[1].value);
-        sumS1S += parseNumber(inputs[7].value);
-        sumS2S += parseNumber(inputs[8].value);
-        const apc = parseNumber(inputs[13].value);
+        sumS1S += parseNumber(inputs[5].value);
+        sumS2S += parseNumber(inputs[6].value);
+        const apc = parseNumber(inputs[10].value);
         if (apc > 0) { totalA += apc; countA++; }
     }
 
@@ -633,20 +648,20 @@ function collectTableData() {
         data.push({
             s1: parseNumber(inputs[0].value) || 0,
             s2: parseNumber(inputs[1].value) || 0,
-            st1: parseNumber(inputs[7].value) || 0,
-            st2: parseNumber(inputs[8].value) || 0,
+            st1: parseNumber(inputs[5].value) || 0,
+            st2: parseNumber(inputs[6].value) || 0,
             totalNet: parseNumber(inputs[2].value) || 0,
             akmSales: parseNumber(inputs[3].value) || 0,
             spd: parseNumber(inputs[4].value) || 0,
-            achm: parseNumber(inputs[5].value) || 0,
-            totalStruk: parseNumber(inputs[9].value) || 0,
-            akmStruk: parseNumber(inputs[10].value) || 0,
-            std: parseNumber(inputs[11].value) || 0,
-            apc: parseNumber(inputs[13].value) || 0,
+            achm: parseFloat(rows[i].querySelector('.achm-td')?.dataset.value) || 0,
+            totalStruk: parseNumber(inputs[7].value) || 0,
+            akmStruk: parseNumber(inputs[8].value) || 0,
+            std: parseNumber(inputs[9].value) || 0,
+            apc: parseNumber(inputs[10].value) || 0,
             m_total: inputs[2].dataset.manual === 'true',
             m_akmS: inputs[3].dataset.manual === 'true',
-            m_totalSt: inputs[9].dataset.manual === 'true',
-            m_akmSt: inputs[10].dataset.manual === 'true'
+            m_totalSt: inputs[7].dataset.manual === 'true',
+            m_akmSt: inputs[8].dataset.manual === 'true'
         });
     }
     return data;
@@ -690,7 +705,7 @@ function exportCurrentMonth() {
         const cells = rows[i].getElementsByTagName('td');
         const inputs = rows[i].getElementsByTagName('input');
 
-        if (!inputs[2] || inputs[2].value.trim() === '' || !inputs[9] || inputs[9].value.trim() === '') continue;
+        if (!inputs[2] || inputs[2].value.trim() === '' || !inputs[7] || inputs[7].value.trim() === '') continue;
 
         data.push({
             no: i + 1,
@@ -699,11 +714,11 @@ function exportCurrentMonth() {
             s2: parseNumber(inputs[1].value) || 0,
             totalNet: parseNumber(inputs[2].value) || 0,
             akmNet: parseNumber(inputs[3].value) || 0,
-            achm: parseNumber(inputs[5].value) || 0,
-            st1: parseNumber(inputs[7].value) || 0,
-            st2: parseNumber(inputs[8].value) || 0,
-            totalStruk: parseNumber(inputs[9].value) || 0,
-            akmStruk: parseNumber(inputs[10].value) || 0
+            achm: parseFloat(rows[i].querySelector('.achm-td')?.dataset.value) || 0,
+            st1: parseNumber(inputs[5].value) || 0,
+            st2: parseNumber(inputs[6].value) || 0,
+            totalStruk: parseNumber(inputs[7].value) || 0,
+            akmStruk: parseNumber(inputs[8].value) || 0
         });
     }
 
@@ -839,26 +854,27 @@ async function handleImport() {
             delete inputs[3].dataset.manual;
             inputs[3].classList.remove('manual-override');
 
-            // ACHM Import
-            inputs[5].value = formatNumber(parseFloat(rowData.achm) || 0);
+            // ACHM disimpan di data-value pada achm-td, bukan input
+            const achmTd = tableRows[targetIndex].querySelector('.achm-td');
+            if (achmTd) achmTd.dataset.value = parseFloat(rowData.achm) || 0;
 
-            inputs[7].value = formatNumber(parseFloat(rowData.st1) || 0);
-            inputs[8].value = formatNumber(parseFloat(rowData.st2) || 0);
+            inputs[5].value = formatNumber(parseFloat(rowData.st1) || 0);
+            inputs[6].value = formatNumber(parseFloat(rowData.st2) || 0);
 
             const sumStruk = (parseFloat(rowData.st1) || 0) + (parseFloat(rowData.st2) || 0);
             const totalStrukVal = parseFloat(rowData.totalStruk) || 0;
-            inputs[9].value = formatNumber(totalStrukVal);
+            inputs[7].value = formatNumber(totalStrukVal);
 
             if (totalStrukVal !== 0 && Math.round(totalStrukVal) !== Math.round(sumStruk)) {
-                inputs[9].dataset.manual = 'true';
-                inputs[9].classList.add('manual-override');
+                inputs[7].dataset.manual = 'true';
+                inputs[7].classList.add('manual-override');
             } else {
-                delete inputs[9].dataset.manual;
-                inputs[9].classList.remove('manual-override');
+                delete inputs[7].dataset.manual;
+                inputs[7].classList.remove('manual-override');
             }
 
-            delete inputs[10].dataset.manual;
-            inputs[10].classList.remove('manual-override');
+            delete inputs[8].dataset.manual;
+            inputs[8].classList.remove('manual-override');
         });
 
         calculateAllRows();
@@ -892,6 +908,21 @@ function getReportData(rowIndex) {
     };
 
     const currentInputs = rows[rowIndex].getElementsByTagName('input');
+    // Mapping input setelah ACHM/Growth jadi div:
+    // 0=salesS1, 1=salesS2, 2=totalNet, 3=akmSales, 4=spd,
+    // 5=strukS1(st1), 6=strukS2(st2), 7=totalStruk, 8=akmStruk, 9=std, 10=apc
+    const achmTd = rows[rowIndex].querySelector('.achm-td');
+    const growthSpdTd = rows[rowIndex].querySelector('.growth-td[data-type="spd"]');
+    const growthStdTd = rows[rowIndex].querySelector('.growth-td[data-type="std"]');
+    const growthApcTd = rows[rowIndex].querySelector('.growth-td[data-type="apc"]');
+
+    // Helper: ambil teks dari growth badge
+    const getGrowthText = (td) => {
+        if (!td) return '';
+        const badge = td.querySelector('.growth-badge');
+        return badge ? badge.textContent.trim() : '';
+    };
+
     const dataNow = {
         tglSales: rows[rowIndex].cells[1].textContent.split(', ')[1],
         salesS1: formatReportNumber(parseNumber(currentInputs[0].value)),
@@ -899,15 +930,15 @@ function getReportData(rowIndex) {
         totalNet: formatReportNumber(parseNumber(currentInputs[2].value)),
         akmSales: formatReportNumber(parseNumber(currentInputs[3].value)),
         spd: formatReportNumber(parseNumber(currentInputs[4].value)),
-        growthSpd: formatGrowthForReport(currentInputs[5].value),
-        strukS1: formatReportNumber(parseNumber(currentInputs[6].value)),
-        strukS2: formatReportNumber(parseNumber(currentInputs[7].value)),
-        totalStruk: formatReportNumber(parseNumber(currentInputs[8].value)),
-        akmStruk: formatReportNumber(parseNumber(currentInputs[9].value)),
-        std: formatReportNumber(parseNumber(currentInputs[10].value)),
-        growthStd: formatGrowthForReport(currentInputs[11].value),
-        apc: formatReportNumber(parseNumber(currentInputs[12].value)),
-        growthApc: formatGrowthForReport(currentInputs[13].value)
+        growthSpd: formatGrowthForReport(getGrowthText(growthSpdTd)),
+        strukS1: formatReportNumber(parseNumber(currentInputs[5].value)),
+        strukS2: formatReportNumber(parseNumber(currentInputs[6].value)),
+        totalStruk: formatReportNumber(parseNumber(currentInputs[7].value)),
+        akmStruk: formatReportNumber(parseNumber(currentInputs[8].value)),
+        std: formatReportNumber(parseNumber(currentInputs[9].value)),
+        growthStd: formatGrowthForReport(getGrowthText(growthStdTd)),
+        apc: formatReportNumber(parseNumber(currentInputs[10].value)),
+        growthApc: formatGrowthForReport(getGrowthText(growthApcTd))
     };
 
     let dataPrev = {

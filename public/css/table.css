@@ -243,6 +243,115 @@ td input.manual-override {
 }
 
 /* =====================================================
+   ACHM CELL - PROGRESS BAR STYLE
+   ===================================================== */
+
+.achm-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 6px;
+    min-width: 80px;
+}
+
+.achm-text {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    line-height: 1;
+}
+
+.achm-bar-track {
+    width: 100%;
+    height: 5px;
+    background: var(--achm-bar-bg);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.achm-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease, background-color 0.3s ease;
+    min-width: 0;
+}
+
+/* Warna level ACHM */
+.achm-cell.achm-low .achm-text {
+    color: var(--achm-low);
+}
+
+.achm-cell.achm-low .achm-bar-fill {
+    background: var(--achm-low);
+}
+
+.achm-cell.achm-mid .achm-text {
+    color: var(--achm-mid);
+}
+
+.achm-cell.achm-mid .achm-bar-fill {
+    background: var(--achm-mid);
+}
+
+.achm-cell.achm-high .achm-text {
+    color: var(--achm-high);
+}
+
+.achm-cell.achm-high .achm-bar-fill {
+    background: var(--achm-high);
+}
+
+.achm-cell.achm-exceed .achm-text {
+    color: var(--achm-exceed);
+}
+
+.achm-cell.achm-exceed .achm-bar-fill {
+    background: linear-gradient(90deg, var(--achm-high), var(--achm-exceed));
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.4);
+}
+
+/* =====================================================
+   GROWTH BADGE - PILL STYLE
+   ===================================================== */
+
+.growth-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    line-height: 1.2;
+    transition: all 0.2s ease;
+}
+
+.growth-badge.growth-pos {
+    background: var(--growth-positive-bg);
+    color: var(--growth-positive);
+}
+
+.growth-badge.growth-neg {
+    background: var(--growth-negative-bg);
+    color: var(--growth-negative);
+}
+
+.growth-badge.growth-zero {
+    background: var(--growth-neutral-bg);
+    color: var(--growth-neutral-text);
+}
+
+.growth-arrow {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    line-height: 1;
+}
+
+/* =====================================================
    SUMMARY ROW
    ===================================================== */
 

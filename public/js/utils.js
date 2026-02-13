@@ -56,3 +56,45 @@ function applyGrowthColor(input, value) {
     if (value > 0) input.classList.add('growth-positive');
     else if (value < 0) input.classList.add('growth-negative');
 }
+
+// Render ACHM sebagai progress bar mini
+function renderAchmCell(value) {
+    if (!value || value === 0) return '';
+    // Tentukan level warna berdasarkan persentase
+    let levelClass = 'achm-low';
+    if (value >= 100) levelClass = 'achm-exceed';
+    else if (value >= 80) levelClass = 'achm-high';
+    else if (value >= 50) levelClass = 'achm-mid';
+
+    // Bar width clamp max 100%
+    const barWidth = Math.min(value, 100);
+
+    return `<div class="achm-cell ${levelClass}">
+        <span class="achm-text">${value.toFixed(1)}%</span>
+        <div class="achm-bar-track">
+            <div class="achm-bar-fill" style="width:${barWidth}%"></div>
+        </div>
+    </div>`;
+}
+
+// Render Growth sebagai pill badge dengan panah
+function renderGrowthBadge(value) {
+    if (isNaN(value) || !isFinite(value)) return '';
+    const text = value.toFixed(2) + '%';
+    let badgeClass, arrow;
+
+    if (value > 0) {
+        badgeClass = 'growth-pos';
+        // Panah atas SVG
+        arrow = '<svg class="growth-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+    } else if (value < 0) {
+        badgeClass = 'growth-neg';
+        // Panah bawah SVG
+        arrow = '<svg class="growth-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    } else {
+        badgeClass = 'growth-zero';
+        arrow = '';
+    }
+
+    return `<span class="growth-badge ${badgeClass}">${arrow}${text}</span>`;
+}

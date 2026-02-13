@@ -36,6 +36,19 @@
     --growth-positive: #198754;
     --growth-negative: #dc3545;
 
+    /* ACHM Levels */
+    --achm-low: #dc3545;
+    --achm-mid: #ffc107;
+    --achm-high: #198754;
+    --achm-exceed: #0d6efd;
+    --achm-bar-bg: #e9ecef;
+
+    /* Growth Badge */
+    --growth-positive-bg: rgba(25, 135, 84, 0.12);
+    --growth-negative-bg: rgba(220, 53, 69, 0.12);
+    --growth-neutral-bg: #e9ecef;
+    --growth-neutral-text: #6c757d;
+
     /* Actions */
     --delete-bg: #dc3545;
     --delete-hover: #c82333;
@@ -97,9 +110,20 @@
 
     /* Growth */
     --growth-positive: #34d399;
-    /* Bright Green */
     --growth-negative: #f87171;
-    /* Bright Red */
+
+    /* ACHM Levels */
+    --achm-low: #f87171;
+    --achm-mid: #fbbf24;
+    --achm-high: #34d399;
+    --achm-exceed: #38bdf8;
+    --achm-bar-bg: rgba(148, 163, 184, 0.2);
+
+    /* Growth Badge */
+    --growth-positive-bg: rgba(52, 211, 153, 0.15);
+    --growth-negative-bg: rgba(248, 113, 113, 0.15);
+    --growth-neutral-bg: rgba(148, 163, 184, 0.15);
+    --growth-neutral-text: #94a3b8;
 
     /* Actions */
     --delete-bg: rgba(239, 68, 68, 0.2);

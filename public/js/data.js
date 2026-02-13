@@ -88,6 +88,37 @@ const DataCache = {
 };
 
 // =====================================================
+// MONTHLY TARGET - LOAD & SAVE
+// =====================================================
+async function loadMonthlyTarget(year, month) {
+    // Set state awal: belum diisi
+    updateTargetCards(0, 0);
+
+    if (!auth.currentUser) return;
+
+    const docId = `target_${year}_${month}`;
+    try {
+        const doc = await db.collection('monthlyTargets').doc(docId).get();
+        if (doc.exists) {
+            const data = doc.data();
+            updateTargetCards(data.targetSpd || 0, data.targetAkm || 0);
+        }
+    } catch (error) {
+        console.error('Error loading monthly target:', error);
+    }
+}
+
+async function saveMonthlyTarget(year, month, targetSpd, targetAkm) {
+    const docId = `target_${year}_${month}`;
+    await db.collection('monthlyTargets').doc(docId).set({
+        targetSpd: targetSpd,
+        targetAkm: targetAkm,
+        updatedAt: new Date(),
+        updatedBy: auth.currentUser?.email || 'unknown'
+    });
+}
+
+// =====================================================
 // MONTH NAVIGATION
 // =====================================================
 async function changeMonth(delta) {
@@ -157,6 +188,9 @@ async function initializeMonth() {
         calculateAllRows();
         updateSummary();
 
+        // Load target bulanan
+        loadMonthlyTarget(year, month);
+
         updateCacheStatus('synced');
         scrollToToday();
         isDataLoaded = true;
@@ -205,15 +239,16 @@ function generateTableStructure() {
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="2"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="3"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="4"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="5"></td>
-            <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="6"></td>
+            <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="5"></td>
+            <td><input type="text" readonly data-row="${day - 1}" data-input="6"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="7"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="8"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="9"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="10"></td>
-            <td><input type="text" readonly data-row="${day - 1}" data-input="11"></td>
+            <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="10"></td>
+            <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="11"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="12"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="13"></td>
+            <td><input type="text" readonly data-row="${day - 1}" data-input="14"></td>
         `;
         tbody.appendChild(row);
 
@@ -227,16 +262,25 @@ function generateTableStructure() {
     addSummaryRow();
 }
 
+
 function setupInputEventListeners(inputs, rowIndex, totalDays) {
-    // Shift inputs (0, 1, 6, 7)
-    [0, 1, 6, 7].forEach(index => {
+    // Shift inputs (0, 1) - ACHM (5) is also manual input
+    [0, 1, 5, 7, 8].forEach(index => {
         const input = inputs[index];
         setupEnterNavigation(input, rowIndex, index, totalDays);
         input.addEventListener('input', function () {
             formatInputValue(this);
-            const totalInput = inputs[(index <= 1) ? 2 : 8];
-            delete totalInput.dataset.manual;
-            totalInput.classList.remove('manual-override');
+            // Auto update totals for shift inputs
+            if (index === 0 || index === 1) {
+                const totalInput = inputs[2];
+                delete totalInput.dataset.manual;
+                totalInput.classList.remove('manual-override');
+            } else if (index === 7 || index === 8) {
+                const totalInput = inputs[9];
+                delete totalInput.dataset.manual;
+                totalInput.classList.remove('manual-override');
+            }
+
             handleRowChange(rowIndex);
             setDirty(true);
         });
@@ -245,10 +289,10 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
         }
     });
 
-    // Total & AKM inputs (2, 3, 8, 9)
-    [2, 8, 3, 9].forEach(index => {
+    // Total & AKM inputs (2, 3, 9, 10)
+    [2, 9, 3, 10].forEach(index => {
         const input = inputs[index];
-        if (index === 2 || index === 8) {
+        if (index === 2 || index === 9) {
             setupTotalEnterJump(input, rowIndex, index, totalDays);
         }
         input.addEventListener('input', function () {
@@ -257,7 +301,7 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
             this.dataset.manual = hasValue ? 'true' : 'false';
             this.classList.toggle('manual-override', hasValue);
 
-            if ((index === 2 || index === 8) && hasValue) {
+            if ((index === 2 || index === 9) && hasValue) {
                 const totalVal = parseNumber(this.value);
                 const half = Math.floor(totalVal / 2);
                 const remainder = totalVal - half;
@@ -265,8 +309,8 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
                     inputs[0].value = formatNumber(half);
                     inputs[1].value = formatNumber(remainder);
                 } else {
-                    inputs[6].value = formatNumber(half);
-                    inputs[7].value = formatNumber(remainder);
+                    inputs[7].value = formatNumber(half);
+                    inputs[8].value = formatNumber(remainder);
                 }
             }
             handleRowChange(rowIndex);
@@ -280,7 +324,7 @@ function setupEnterNavigation(input, rowIndex, inputIndex, totalRows) {
         if (e.key === 'Enter') {
             e.preventDefault();
             const rows = document.getElementById('tableBody').rows;
-            const navOrder = [0, 1, 6, 7];
+            const navOrder = [0, 1, 5, 7, 8];
             const currentPos = navOrder.indexOf(inputIndex);
             let nextInput = null;
 
@@ -338,16 +382,17 @@ function populateTableData(data) {
 
         inputs[0].value = formatNumber(d.s1);
         inputs[1].value = formatNumber(d.s2);
-        inputs[6].value = formatNumber(d.st1);
-        inputs[7].value = formatNumber(d.st2);
+        inputs[5].value = formatNumber(d.achm || 0);
+        inputs[7].value = formatNumber(d.st1);
+        inputs[8].value = formatNumber(d.st2);
 
         inputs[2].value = formatNumber(d.totalNet);
         inputs[3].value = formatNumber(d.akmSales);
         inputs[4].value = formatNumber(d.spd);
-        inputs[8].value = formatNumber(d.totalStruk);
-        inputs[9].value = formatNumber(d.akmStruk);
-        inputs[10].value = formatNumber(d.std);
-        inputs[12].value = formatNumber(d.apc);
+        inputs[9].value = formatNumber(d.totalStruk);
+        inputs[10].value = formatNumber(d.akmStruk);
+        inputs[11].value = formatNumber(d.std);
+        inputs[13].value = formatNumber(d.apc);
 
         if (d.m_total) {
             inputs[2].dataset.manual = 'true';
@@ -358,12 +403,12 @@ function populateTableData(data) {
             inputs[3].classList.add('manual-override');
         }
         if (d.m_totalSt) {
-            inputs[8].dataset.manual = 'true';
-            inputs[8].classList.add('manual-override');
-        }
-        if (d.m_akmSt) {
             inputs[9].dataset.manual = 'true';
             inputs[9].classList.add('manual-override');
+        }
+        if (d.m_akmSt) {
+            inputs[10].dataset.manual = 'true';
+            inputs[10].classList.add('manual-override');
         }
     }
 }
@@ -411,28 +456,28 @@ function calculateRow(rowIndex) {
     const spd = akmSales / (rowIndex + 1);
     inputs[4].value = formatNumber(spd);
 
-    const strukShift1 = parseNumber(inputs[6].value);
-    const strukShift2 = parseNumber(inputs[7].value);
-
-    if (inputs[8].dataset.manual !== 'true') {
-        inputs[8].value = formatNumber(strukShift1 + strukShift2);
-    }
-    const totalStruk = parseNumber(inputs[8].value);
+    const strukShift1 = parseNumber(inputs[7].value);
+    const strukShift2 = parseNumber(inputs[8].value);
 
     if (inputs[9].dataset.manual !== 'true') {
-        const prevAkm = rowIndex > 0 ? parseNumber(rows[rowIndex - 1].getElementsByTagName('input')[9].value) : 0;
-        inputs[9].value = formatNumber(totalStruk + prevAkm);
+        inputs[9].value = formatNumber(strukShift1 + strukShift2);
     }
-    const akmStruk = parseNumber(inputs[9].value);
+    const totalStruk = parseNumber(inputs[9].value);
+
+    if (inputs[10].dataset.manual !== 'true') {
+        const prevAkm = rowIndex > 0 ? parseNumber(rows[rowIndex - 1].getElementsByTagName('input')[10].value) : 0;
+        inputs[10].value = formatNumber(totalStruk + prevAkm);
+    }
+    const akmStruk = parseNumber(inputs[10].value);
     const std = akmStruk / (rowIndex + 1);
-    inputs[10].value = formatNumber(Math.floor(std));
+    inputs[11].value = formatNumber(Math.floor(std));
 
     const apc = (spd > 0 && std > 0) ? (spd / std) : 0;
-    inputs[12].value = formatNumber(apc);
+    inputs[13].value = formatNumber(apc);
 
-    inputs[5].value = '';
-    inputs[11].value = '';
-    inputs[13].value = '';
+    inputs[6].value = '';
+    inputs[12].value = '';
+    inputs[14].value = '';
 
     const prevYear = month === 0 ? year - 1 : year;
     const prevMonth = month === 0 ? 11 : month - 1;
@@ -447,20 +492,20 @@ function calculateRow(rowIndex) {
 
         if (spd > 0 && prevSpd > 0) {
             const growth = ((spd / prevSpd) - 1) * 100;
-            inputs[5].value = formatGrowth(growth);
-            applyGrowthColor(inputs[5], growth);
+            inputs[6].value = formatGrowth(growth);
+            applyGrowthColor(inputs[6], growth);
         }
 
         if (std > 0 && prevStd > 0) {
             const growth = ((std / prevStd) - 1) * 100;
-            inputs[11].value = formatGrowth(growth);
-            applyGrowthColor(inputs[11], growth);
+            inputs[12].value = formatGrowth(growth);
+            applyGrowthColor(inputs[12], growth);
         }
 
         if (apc > 0 && prevApc > 0) {
             const growth = ((apc / prevApc) - 1) * 100;
-            inputs[13].value = formatGrowth(growth);
-            applyGrowthColor(inputs[13], growth);
+            inputs[14].value = formatGrowth(growth);
+            applyGrowthColor(inputs[14], growth);
         }
     }
 }
@@ -476,7 +521,7 @@ function addSummaryRow() {
         <td id="sumShift1Penjualan">-</td>
         <td id="sumShift2Penjualan">-</td>
         <td id="totalPenjualan">-</td>
-        <td>-</td><td>-</td><td>-</td>
+        <td>-</td><td>-</td><td>-</td><td>-</td>
         <td id="sumShift1Struk">-</td>
         <td id="sumShift2Struk">-</td>
         <td id="totalStruk">-</td>
@@ -494,9 +539,9 @@ function updateSummary() {
         const inputs = rows[i].getElementsByTagName('input');
         sumS1P += parseNumber(inputs[0].value);
         sumS2P += parseNumber(inputs[1].value);
-        sumS1S += parseNumber(inputs[6].value);
-        sumS2S += parseNumber(inputs[7].value);
-        const apc = parseNumber(inputs[12].value);
+        sumS1S += parseNumber(inputs[7].value);
+        sumS2S += parseNumber(inputs[8].value);
+        const apc = parseNumber(inputs[13].value);
         if (apc > 0) { totalA += apc; countA++; }
     }
 
@@ -577,19 +622,20 @@ function collectTableData() {
         data.push({
             s1: parseNumber(inputs[0].value) || 0,
             s2: parseNumber(inputs[1].value) || 0,
-            st1: parseNumber(inputs[6].value) || 0,
-            st2: parseNumber(inputs[7].value) || 0,
+            st1: parseNumber(inputs[7].value) || 0,
+            st2: parseNumber(inputs[8].value) || 0,
             totalNet: parseNumber(inputs[2].value) || 0,
             akmSales: parseNumber(inputs[3].value) || 0,
             spd: parseNumber(inputs[4].value) || 0,
-            totalStruk: parseNumber(inputs[8].value) || 0,
-            akmStruk: parseNumber(inputs[9].value) || 0,
-            std: parseNumber(inputs[10].value) || 0,
-            apc: parseNumber(inputs[12].value) || 0,
+            achm: parseNumber(inputs[5].value) || 0,
+            totalStruk: parseNumber(inputs[9].value) || 0,
+            akmStruk: parseNumber(inputs[10].value) || 0,
+            std: parseNumber(inputs[11].value) || 0,
+            apc: parseNumber(inputs[13].value) || 0,
             m_total: inputs[2].dataset.manual === 'true',
             m_akmS: inputs[3].dataset.manual === 'true',
-            m_totalSt: inputs[8].dataset.manual === 'true',
-            m_akmSt: inputs[9].dataset.manual === 'true'
+            m_totalSt: inputs[9].dataset.manual === 'true',
+            m_akmSt: inputs[10].dataset.manual === 'true'
         });
     }
     return data;
@@ -633,7 +679,7 @@ function exportCurrentMonth() {
         const cells = rows[i].getElementsByTagName('td');
         const inputs = rows[i].getElementsByTagName('input');
 
-        if (!inputs[2] || inputs[2].value.trim() === '' || !inputs[8] || inputs[8].value.trim() === '') continue;
+        if (!inputs[2] || inputs[2].value.trim() === '' || !inputs[9] || inputs[9].value.trim() === '') continue;
 
         data.push({
             no: i + 1,
@@ -642,10 +688,11 @@ function exportCurrentMonth() {
             s2: parseNumber(inputs[1].value) || 0,
             totalNet: parseNumber(inputs[2].value) || 0,
             akmNet: parseNumber(inputs[3].value) || 0,
-            st1: parseNumber(inputs[6].value) || 0,
-            st2: parseNumber(inputs[7].value) || 0,
-            totalStruk: parseNumber(inputs[8].value) || 0,
-            akmStruk: parseNumber(inputs[9].value) || 0
+            achm: parseNumber(inputs[5].value) || 0,
+            st1: parseNumber(inputs[7].value) || 0,
+            st2: parseNumber(inputs[8].value) || 0,
+            totalStruk: parseNumber(inputs[9].value) || 0,
+            akmStruk: parseNumber(inputs[10].value) || 0
         });
     }
 
@@ -695,6 +742,7 @@ async function exportAllData() {
                     s2: row.s2 || 0,
                     totalNet: totalNet,
                     akmNet: akmNet,
+                    achm: row.achm || 0,
                     st1: row.st1 || 0,
                     st2: row.st2 || 0,
                     totalStruk: totalStruk,
@@ -780,23 +828,26 @@ async function handleImport() {
             delete inputs[3].dataset.manual;
             inputs[3].classList.remove('manual-override');
 
-            inputs[6].value = formatNumber(parseFloat(rowData.st1) || 0);
-            inputs[7].value = formatNumber(parseFloat(rowData.st2) || 0);
+            // ACHM Import
+            inputs[5].value = formatNumber(parseFloat(rowData.achm) || 0);
+
+            inputs[7].value = formatNumber(parseFloat(rowData.st1) || 0);
+            inputs[8].value = formatNumber(parseFloat(rowData.st2) || 0);
 
             const sumStruk = (parseFloat(rowData.st1) || 0) + (parseFloat(rowData.st2) || 0);
             const totalStrukVal = parseFloat(rowData.totalStruk) || 0;
-            inputs[8].value = formatNumber(totalStrukVal);
+            inputs[9].value = formatNumber(totalStrukVal);
 
             if (totalStrukVal !== 0 && Math.round(totalStrukVal) !== Math.round(sumStruk)) {
-                inputs[8].dataset.manual = 'true';
-                inputs[8].classList.add('manual-override');
+                inputs[9].dataset.manual = 'true';
+                inputs[9].classList.add('manual-override');
             } else {
-                delete inputs[8].dataset.manual;
-                inputs[8].classList.remove('manual-override');
+                delete inputs[9].dataset.manual;
+                inputs[9].classList.remove('manual-override');
             }
 
-            delete inputs[9].dataset.manual;
-            inputs[9].classList.remove('manual-override');
+            delete inputs[10].dataset.manual;
+            inputs[10].classList.remove('manual-override');
         });
 
         calculateAllRows();

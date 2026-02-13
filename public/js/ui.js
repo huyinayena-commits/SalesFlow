@@ -113,6 +113,105 @@ function toggleImportModal() {
     document.getElementById('importModal').classList.toggle('show');
 }
 
+// =====================================================
+// TARGET MODAL FUNCTIONS
+// =====================================================
+function openTargetModal() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Update label bulan di modal
+    const label = document.getElementById('targetMonthLabel');
+    if (label) label.textContent = `Target untuk: ${monthNames[month]} ${year}`;
+
+    // Pre-fill input jika sudah ada data
+    const spdInput = document.getElementById('inputTargetSpd');
+    const akmInput = document.getElementById('inputTargetAkm');
+
+    if (spdInput && akmInput) {
+        const spdEl = document.getElementById('targetSpdValue');
+        const akmEl = document.getElementById('targetAkmValue');
+
+        // Cek apakah sudah ada value (bukan "Belum diisi")
+        if (spdEl && !spdEl.classList.contains('empty')) {
+            spdInput.value = spdEl.textContent;
+        } else {
+            spdInput.value = '';
+        }
+        if (akmEl && !akmEl.classList.contains('empty')) {
+            akmInput.value = akmEl.textContent;
+        } else {
+            akmInput.value = '';
+        }
+
+        // Format otomatis saat mengetik
+        spdInput.oninput = function () { formatInputValue(this); };
+        akmInput.oninput = function () { formatInputValue(this); };
+    }
+
+    document.getElementById('targetModal').classList.add('show');
+    if (spdInput) spdInput.focus();
+}
+
+function closeTargetModal() {
+    document.getElementById('targetModal').classList.remove('show');
+}
+
+async function handleSaveTarget() {
+    const spdInput = document.getElementById('inputTargetSpd');
+    const akmInput = document.getElementById('inputTargetAkm');
+
+    const targetSpd = parseNumber(spdInput.value);
+    const targetAkm = parseNumber(akmInput.value);
+
+    if (targetSpd <= 0 && targetAkm <= 0) {
+        showMessage('Isi minimal satu target');
+        return;
+    }
+
+    if (!auth.currentUser) {
+        showMessage('Login dulu untuk menyimpan target');
+        return;
+    }
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    try {
+        await saveMonthlyTarget(year, month, targetSpd, targetAkm);
+        updateTargetCards(targetSpd, targetAkm);
+        closeTargetModal();
+        showMessage('Target berhasil disimpan');
+    } catch (error) {
+        console.error('Error saving target:', error);
+        showMessage('Gagal menyimpan target');
+    }
+}
+
+function updateTargetCards(targetSpd, targetAkm) {
+    const spdEl = document.getElementById('targetSpdValue');
+    const akmEl = document.getElementById('targetAkmValue');
+
+    if (spdEl) {
+        if (targetSpd > 0) {
+            spdEl.textContent = formatNumber(targetSpd);
+            spdEl.classList.remove('empty');
+        } else {
+            spdEl.textContent = 'Belum diisi';
+            spdEl.classList.add('empty');
+        }
+    }
+    if (akmEl) {
+        if (targetAkm > 0) {
+            akmEl.textContent = formatNumber(targetAkm);
+            akmEl.classList.remove('empty');
+        } else {
+            akmEl.textContent = 'Belum diisi';
+            akmEl.classList.add('empty');
+        }
+    }
+}
+
 function copyExportText() {
     const text = document.getElementById('exportTextArea').value;
     navigator.clipboard.writeText(text)
@@ -242,8 +341,8 @@ function openQuickInputModal() {
 
     const existingS1 = parseNumber(inputs[0]?.value || 0);
     const existingS2 = parseNumber(inputs[1]?.value || 0);
-    const existingSt1 = parseNumber(inputs[6]?.value || 0);
-    const existingSt2 = parseNumber(inputs[7]?.value || 0);
+    const existingSt1 = parseNumber(inputs[7]?.value || 0);
+    const existingSt2 = parseNumber(inputs[8]?.value || 0);
 
     body.innerHTML = `
         <div id="quickInputForm">
@@ -375,11 +474,11 @@ function handleQuickSave() {
     // Only update if there's a value
     if (salesS1 > 0) inputs[0].value = formatNumber(salesS1);
     if (salesS2 > 0) inputs[1].value = formatNumber(salesS2);
-    if (strukS1 > 0) inputs[6].value = formatNumber(strukS1);
-    if (strukS2 > 0) inputs[7].value = formatNumber(strukS2);
+    if (strukS1 > 0) inputs[7].value = formatNumber(strukS1);
+    if (strukS2 > 0) inputs[8].value = formatNumber(strukS2);
 
     delete inputs[2].dataset.manual; inputs[2].classList.remove('manual-override');
-    delete inputs[8].dataset.manual; inputs[8].classList.remove('manual-override');
+    delete inputs[9].dataset.manual; inputs[9].classList.remove('manual-override');
 
     handleRowChange(rowIndex);
     setDirty(true);

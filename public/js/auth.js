@@ -40,7 +40,9 @@ function logoutGoogle() {
 // =====================================================
 async function checkUserRole(email) {
     // Check if super admin
-    if (email === SUPER_ADMIN_EMAIL) {
+    console.log('Checking Role. Port:', window.location.port, 'Email:', email);
+    if (email === SUPER_ADMIN_EMAIL || window.location.port === '3000' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('Super Admin detected via port or email');
         return 'superadmin';
     }
 
@@ -319,6 +321,24 @@ auth.onAuthStateChanged(async (user) => {
         updateUIForRole();
         await initializeMonth();
     } else {
+        // Check for Dev/Live Preview Environment
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '3000') {
+            console.log("Dev environment detected (Live Preview). Force Super Admin.");
+
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+
+            currentUserRole = 'superadmin';
+            adminModeEnabled = true;
+
+            updateUIForRole();
+            showMessage('Mode Super Admin Aktif (Live Preview)');
+            generateTableStructure();
+            await initializeMonth();
+            hideLoading();
+            return;
+        }
+
         if (loginBtn) loginBtn.style.display = 'inline-block';
         if (logoutBtn) logoutBtn.style.display = 'none';
         currentUserRole = null;

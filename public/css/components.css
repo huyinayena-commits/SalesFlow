@@ -836,3 +836,113 @@ button:active {
     gap: 10px;
     justify-content: flex-end;
 }
+
+/* =====================================================
+   SUMMARY CARDS - TARGET SPD & AKM
+   ===================================================== */
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    /* Reduced gap */
+    padding: 8px 12px;
+    /* Reduced padding */
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .summary-cards {
+    background: #0a1122;
+}
+
+.summary-card {
+    position: relative;
+    padding: 10px 12px;
+    /* Reduced padding */
+    border-radius: 10px;
+    /* Slightly smaller radius */
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .summary-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.5));
+    border: 1px solid rgba(56, 189, 248, 0.12);
+}
+
+.summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    /* Thinner accent bar */
+    height: 100%;
+    background: var(--accent-color);
+    border-radius: 10px 0 0 10px;
+    opacity: 0.7;
+    transition: opacity 0.25s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-1px);
+    /* More subtle lift */
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+}
+
+.summary-card:hover::before {
+    opacity: 1;
+}
+
+.summary-card:active {
+    transform: translateY(0);
+}
+
+.summary-card-label {
+    font-size: 10px;
+    /* Smaller label */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+    /* Tighter spacing */
+}
+
+.summary-card-value {
+    font-size: 14px;
+    /* Smaller value */
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.summary-card-value.empty {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Label bulan di modal target */
+.target-month-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Target modal ukuran */
+#targetModal .modal-content {
+    max-width: 400px;
+}

@@ -19,6 +19,35 @@ function switchAdminTab(tabId) {
     if (tabId === 'tabSystem') loadSystemConfig();
 }
 
+// Alias for HTML onclick
+function switchTab(shortName) {
+    const map = {
+        'accessRequests': 'tabAccessRequests',
+        'userManagement': 'tabUsers',
+        'roleManagement': 'tabRoles',
+        'systemConfig': 'tabSystem',
+        'auditLog': 'tabAudit'
+    };
+    switchAdminTab(map[shortName]);
+}
+
+// =====================================================
+// MODAL MANAGEMENT
+// =====================================================
+function openUserManagementModal() {
+    const modal = document.getElementById('userManagementModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Default load access requests
+        switchAdminTab('tabAccessRequests');
+    }
+}
+
+function closeUserManagementModal() {
+    const modal = document.getElementById('userManagementModal');
+    if (modal) modal.style.display = 'none';
+}
+
 // =====================================================
 // USER MANAGEMENT
 // =====================================================
@@ -155,6 +184,94 @@ function refreshUserList() {
     loadUsers();
 }
 
+function filterUsers() {
+    const input = document.getElementById('userSearchInput');
+    const filter = input.value.toLowerCase();
+    const list = document.getElementById('userList');
+
+    // We need to re-render based on allUsers filtered
+    if (!allUsers || allUsers.length === 0) return;
+
+    const filtered = allUsers.filter(u =>
+        u.id.toLowerCase().includes(filter) ||
+        (u.role && u.role.toLowerCase().includes(filter))
+    );
+
+    // Re-use rendering logic (simplified duplication for now)
+    let html = '';
+    filtered.forEach(data => {
+        // Don't show super admin in the list to edit
+        if (data.id === SUPER_ADMIN_EMAIL) return;
+
+        const statusClass = data.active ? 'status-active' : 'status-inactive';
+        const statusText = data.active ? 'Aktif' : 'Nonaktif';
+        const roleBadge = getRoleBadge(data.role);
+
+        html += `
+            <div class="user-item-enhanced ${!data.active ? 'inactive' : ''}">
+                <div class="user-avatar">${data.id.charAt(0).toUpperCase()}</div>
+                <div class="user-details">
+                    <div class="user-name">${data.id}</div>
+                    <div class="user-meta">
+                        ${roleBadge} • <span class="user-status-badge ${statusClass}">${statusText}</span>
+                        • Terdaftar: ${data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('id-ID') : '-'}
+                    </div>
+                </div>
+                <div class="user-item-actions">
+                    <button onclick="toggleUserStatus('${data.id}', ${data.active})">
+                        ${data.active ? 'Nonaktifkan' : 'Aktifkan'}
+                    </button>
+                    <select onchange="changeUserRole('${data.id}', this.value)" style="padding: 6px; border-radius: 6px;">
+                        <option value="staff" ${data.role === 'staff' ? 'selected' : ''}>Staff</option>
+                        <option value="admin" ${data.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
+                </div>
+            </div>
+        `;
+    });
+
+    if (html === '') html = '<div class="empty-state"><div class="empty-state-text">Tidak ditemukan</div></div>';
+    list.innerHTML = html;
+}
+
+async function addNewUser() {
+    const emailInput = document.getElementById('newUserEmail');
+    const roleInput = document.getElementById('newUserRole');
+
+    const email = emailInput.value.trim();
+    const role = roleInput.value;
+
+    if (!email) {
+        showMessage('Email harus diisi');
+        return;
+    }
+
+    try {
+        // Check if user already exists
+        const check = await db.collection('users').doc(email).get();
+        if (check.exists) {
+            showMessage('User sudah terdaftar');
+            return;
+        }
+
+        await db.collection('users').doc(email).set({
+            role: role,
+            createdAt: new Date(),
+            createdBy: auth.currentUser?.email || 'admin',
+            active: true
+        });
+
+        await logAuditAction('user', `Added new user manually: ${email} as ${role}`);
+        showMessage(`User ${email} berhasil ditambahkan`);
+        emailInput.value = ''; // Reset input
+        loadUsers(); // Refresh list
+
+    } catch (error) {
+        console.error('Error adding user:', error);
+        showMessage('Gagal menambahkan user');
+    }
+}
+
 // =====================================================
 // CUSTOM ROLES MANAGEMENT
 // =====================================================
@@ -224,16 +341,23 @@ async function loadCustomRoles() {
     }
 }
 
-function openRoleModal() {
-    // Simple implementation - could be enhanced with a proper modal
-    const roleName = prompt("Nama Role Baru:");
-    if (!roleName) return;
+async function createCustomRole() {
+    const nameInput = document.getElementById('newRoleName');
+    const name = nameInput.value.trim();
 
-    const canEdit = confirm("Izinkan Edit Data?");
-    const canDelete = confirm("Izinkan Hapus Data?");
-    const canExport = confirm("Izinkan Export Data?");
+    if (!name) {
+        showMessage('Nama role harus diisi');
+        return;
+    }
 
-    saveRole(roleName, { canEdit, canDelete, canExport });
+    const permissions = {
+        canInput: document.getElementById('perm_inputData')?.checked || false,
+        canViewReports: document.getElementById('perm_viewReports')?.checked || false,
+        canExport: document.getElementById('perm_exportData')?.checked || false
+    };
+
+    await saveRole(name, permissions);
+    nameInput.value = ''; // Reset
 }
 
 async function saveRole(name, permissions) {
@@ -301,49 +425,84 @@ async function loadAuditLogs() {
             .limit(100)
             .get();
 
-        if (snapshot.empty) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon"></div>
-                    <div class="empty-state-text">Belum ada riwayat aktivitas</div>
-                </div>
-            `;
-            return;
+        allAuditLogs = []; // Store globally for filtering
+
+        if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+                allAuditLogs.push({ id: doc.id, ...doc.data() });
+            });
         }
 
-        let html = '';
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const date = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();
-            const timeStr = date.toLocaleString('id-ID');
-            let icon = '';
-            let iconClass = '';
-
-            switch (data.actionType) {
-                case 'login': icon = 'L'; iconClass = 'action-login'; break;
-                case 'user': icon = 'U'; iconClass = 'action-user'; break;
-                case 'config': icon = 'C'; iconClass = 'action-config'; break;
-                case 'security': icon = 'S'; iconClass = 'action-security'; break;
-            }
-
-            html += `
-                <div class="audit-log-item">
-                    <div class="audit-icon ${iconClass}">${icon}</div>
-                    <div class="audit-content">
-                        <div class="audit-action">${data.details}</div>
-                        <div class="audit-details">User: ${data.userEmail || 'System'}</div>
-                    </div>
-                    <div class="audit-time">${timeStr}</div>
-                </div>
-            `;
-        });
-
-        container.innerHTML = html;
+        renderAuditLogs(allAuditLogs);
 
     } catch (error) {
         console.error('Error loading audit logs:', error);
         container.innerHTML = '<p style="text-align:center; color: var(--delete-bg);">Gagal memuat log.</p>';
     }
+}
+
+function renderAuditLogs(logs) {
+    const container = document.getElementById('auditLogList');
+    if (!container) return;
+
+    if (!logs || logs.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon"></div>
+                <div class="empty-state-text">Tidak ada riwayat aktivitas</div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    logs.forEach(data => {
+        const date = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();
+        const timeStr = date.toLocaleString('id-ID');
+        let icon = '';
+        let iconClass = '';
+
+        switch (data.actionType) {
+            case 'login': icon = 'L'; iconClass = 'action-login'; break;
+            case 'user': icon = 'U'; iconClass = 'action-user'; break;
+            case 'config': icon = 'C'; iconClass = 'action-config'; break;
+            case 'security': icon = 'S'; iconClass = 'action-security'; break;
+            default: icon = 'A'; iconClass = 'action-config';
+        }
+
+        html += `
+            <div class="audit-log-item">
+                <div class="audit-icon ${iconClass}">${icon}</div>
+                <div class="audit-content">
+                    <div class="audit-action">${data.details}</div>
+                    <div class="audit-details">User: ${data.userEmail || 'System'}</div>
+                </div>
+                <div class="audit-time">${timeStr}</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function filterAuditLog() {
+    const input = document.getElementById('auditSearchInput');
+    const typeSelect = document.getElementById('auditFilterType');
+
+    const filterText = input.value.toLowerCase();
+    const filterType = typeSelect.value;
+
+    if (!allAuditLogs) return;
+
+    const filtered = allAuditLogs.filter(log => {
+        const matchesText = log.details.toLowerCase().includes(filterText) ||
+            (log.userEmail && log.userEmail.toLowerCase().includes(filterText));
+        const matchesType = filterType === 'all' || log.actionType === filterType;
+
+        return matchesText && matchesType;
+    });
+
+    renderAuditLogs(filtered);
 }
 
 function refreshAuditLogs() {

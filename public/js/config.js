@@ -106,6 +106,7 @@ let currentUserRole = null;
 let adminModeEnabled = false;
 let allUsers = [];
 let allAuditLogs = [];
+let currentMonthTarget = { targetSpd: 0, targetAkm: 0 };
 
 // =====================================================
 // SYSTEM CONFIG FUNCTIONS

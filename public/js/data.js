@@ -91,7 +91,8 @@ const DataCache = {
 // MONTHLY TARGET - LOAD & SAVE
 // =====================================================
 async function loadMonthlyTarget(year, month) {
-    // Set state awal: belum diisi
+    // Reset target bulan ini
+    currentMonthTarget = { targetSpd: 0, targetAkm: 0 };
     updateTargetCards(0, 0);
 
     if (!auth.currentUser) return;
@@ -101,8 +102,12 @@ async function loadMonthlyTarget(year, month) {
         const doc = await db.collection('monthlyTargets').doc(docId).get();
         if (doc.exists) {
             const data = doc.data();
-            updateTargetCards(data.targetSpd || 0, data.targetAkm || 0);
+            currentMonthTarget.targetSpd = data.targetSpd || 0;
+            currentMonthTarget.targetAkm = data.targetAkm || 0;
+            updateTargetCards(currentMonthTarget.targetSpd, currentMonthTarget.targetAkm);
         }
+        // Recalculate semua baris agar ACHM ter-update
+        calculateAllRows();
     } catch (error) {
         console.error('Error loading monthly target:', error);
     }
@@ -239,7 +244,7 @@ function generateTableStructure() {
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="2"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="3"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="4"></td>
-            <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="5"></td>
+            <td><input type="text" readonly data-row="${day - 1}" data-input="5"></td>
             <td><input type="text" readonly data-row="${day - 1}" data-input="6"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="7"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="8"></td>
@@ -264,8 +269,8 @@ function generateTableStructure() {
 
 
 function setupInputEventListeners(inputs, rowIndex, totalDays) {
-    // Shift inputs (0, 1) - ACHM (5) is also manual input
-    [0, 1, 5, 7, 8].forEach(index => {
+    // Shift inputs (0, 1) dan struk inputs (7, 8) - manual input
+    [0, 1, 7, 8].forEach(index => {
         const input = inputs[index];
         setupEnterNavigation(input, rowIndex, index, totalDays);
         input.addEventListener('input', function () {
@@ -455,6 +460,14 @@ function calculateRow(rowIndex) {
     const akmSales = parseNumber(inputs[3].value);
     const spd = akmSales / (rowIndex + 1);
     inputs[4].value = formatNumber(spd);
+
+    // Hitung ACHM otomatis: (SPD / Target SPD) * 100
+    if (currentMonthTarget.targetSpd > 0 && spd > 0) {
+        const achm = (spd / currentMonthTarget.targetSpd) * 100;
+        inputs[5].value = achm.toFixed(1) + '%';
+    } else {
+        inputs[5].value = '';
+    }
 
     const strukShift1 = parseNumber(inputs[7].value);
     const strukShift2 = parseNumber(inputs[8].value);

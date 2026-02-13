@@ -179,7 +179,11 @@ async function handleSaveTarget() {
 
     try {
         await saveMonthlyTarget(year, month, targetSpd, targetAkm);
+        // Update variabel global dan recalculate ACHM
+        currentMonthTarget.targetSpd = targetSpd;
+        currentMonthTarget.targetAkm = targetAkm;
         updateTargetCards(targetSpd, targetAkm);
+        calculateAllRows();
         closeTargetModal();
         showMessage('Target berhasil disimpan');
     } catch (error) {

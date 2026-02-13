@@ -106,8 +106,6 @@ async function loadMonthlyTarget(year, month) {
             currentMonthTarget.targetAkm = data.targetAkm || 0;
             updateTargetCards(currentMonthTarget.targetSpd, currentMonthTarget.targetAkm);
         }
-        // Recalculate semua baris agar ACHM ter-update
-        calculateAllRows();
     } catch (error) {
         console.error('Error loading monthly target:', error);
     }
@@ -190,11 +188,11 @@ async function initializeMonth() {
             populateTableData(currentData);
         }
 
+        // Load target bulanan SEBELUM kalkulasi
+        await loadMonthlyTarget(year, month);
+
         calculateAllRows();
         updateSummary();
-
-        // Load target bulanan
-        loadMonthlyTarget(year, month);
 
         updateCacheStatus('synced');
         scrollToToday();

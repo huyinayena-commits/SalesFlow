@@ -31,6 +31,7 @@
         <div class="header">
             <div class="header-top">
                 <h1>Laporan Penjualan</h1>
+                <span id="userRoleBadge"></span>
                 <div class="header-actions">
                     <button id="loginBtn" class="btn-primary" onclick="loginGoogle()" title="Login dengan Google"
                         style="display: none;">Masuk</button>
@@ -175,6 +176,136 @@
                 </div>
                 <div class="info-text">
                     <p><strong>Cache Info:</strong> Data di-cache lokal untuk performa optimal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management Modal -->
+    <div id="userManagementModal" class="modal-overlay" style="display:none;" onclick="closeUserManagementModal()">
+        <div class="modal-content modal-large" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Kelola Pengguna</h2>
+                <button class="close-modal" onclick="closeUserManagementModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Tab Navigation -->
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="switchAdminTab('tabAccessRequests')">Permintaan Akses <span
+                            id="pendingRequestsBadge" class="tab-badge" style="display:none;"></span></button>
+                    <button class="tab-btn" onclick="switchAdminTab('tabUsers')">Pengguna</button>
+                    <button class="tab-btn" onclick="switchAdminTab('tabRoles')">Role</button>
+                    <button class="tab-btn" onclick="switchAdminTab('tabAudit')">Audit Log</button>
+                    <button class="tab-btn" onclick="switchAdminTab('tabSystem')">Sistem</button>
+                </div>
+
+                <!-- Tab: Access Requests -->
+                <div id="tabAccessRequests" class="tab-content active">
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statPendingRequests">0</div>
+                            <div class="stat-label">Menunggu</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statApprovedToday">0</div>
+                            <div class="stat-label">Disetujui</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statRejectedToday">0</div>
+                            <div class="stat-label">Ditolak</div>
+                        </div>
+                    </div>
+                    <div id="accessRequestsList"></div>
+                </div>
+
+                <!-- Tab: Users -->
+                <div id="tabUsers" class="tab-content">
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statTotalUsers">0</div>
+                            <div class="stat-label">Total User</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statActiveUsers">0</div>
+                            <div class="stat-label">Aktif</div>
+                        </div>
+                    </div>
+                    <div class="admin-toolbar">
+                        <input type="text" id="userSearchInput" placeholder="Cari pengguna..." oninput="filterUsers()">
+                        <button onclick="refreshUserList()">Refresh</button>
+                    </div>
+                    <div id="userList"></div>
+                    <div class="add-user-section">
+                        <h4>Tambah User Manual</h4>
+                        <div class="add-user-form">
+                            <input type="email" id="newUserEmail" placeholder="email@contoh.com">
+                            <select id="newUserRole">
+                                <option value="staff">Staff</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <button onclick="addNewUser()">Tambah</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Roles -->
+                <div id="tabRoles" class="tab-content">
+                    <div id="rolesList"></div>
+                    <div class="add-role-section">
+                        <h4>Buat Role Baru</h4>
+                        <div class="add-role-form">
+                            <input type="text" id="newRoleName" placeholder="Nama role">
+                            <div class="permission-checkboxes">
+                                <label><input type="checkbox" id="perm_inputData"> Input Data</label>
+                                <label><input type="checkbox" id="perm_viewReports"> View Reports</label>
+                                <label><input type="checkbox" id="perm_exportData"> Export Data</label>
+                            </div>
+                            <button onclick="createCustomRole()">Buat Role</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Audit Log -->
+                <div id="tabAudit" class="tab-content">
+                    <div class="admin-toolbar">
+                        <input type="text" id="auditSearchInput" placeholder="Cari log..." oninput="filterAuditLog()">
+                        <select id="auditFilterType" onchange="filterAuditLog()">
+                            <option value="all">Semua</option>
+                            <option value="login">Login</option>
+                            <option value="user">User</option>
+                            <option value="config">Config</option>
+                            <option value="security">Security</option>
+                        </select>
+                        <button onclick="refreshAuditLogs()">Refresh</button>
+                    </div>
+                    <div id="auditLogList"></div>
+                </div>
+
+                <!-- Tab: System Config -->
+                <div id="tabSystem" class="tab-content">
+                    <div class="system-config-list">
+                        <div class="setting-item">
+                            <span>Registrasi Terbuka</span>
+                            <input type="checkbox" id="configOpenRegistration"
+                                onchange="updateSystemConfig('openRegistration', this.checked)">
+                        </div>
+                        <div class="setting-item">
+                            <span>Audit Logging</span>
+                            <input type="checkbox" id="configAuditLogging"
+                                onchange="updateSystemConfig('auditLogging', this.checked)">
+                        </div>
+                        <div class="setting-item">
+                            <span>Peringatan Login</span>
+                            <input type="checkbox" id="configLoginWarning"
+                                onchange="updateSystemConfig('loginWarning', this.checked)">
+                        </div>
+                        <div class="setting-item">
+                            <span>Auto Lock</span>
+                            <input type="checkbox" id="configAutoLock"
+                                onchange="updateSystemConfig('autoLock', this.checked)">
+                        </div>
+                    </div>
+                    <button onclick="saveSystemConfig()" style="margin-top: 10px;">Simpan Pengaturan Sistem</button>
                 </div>
             </div>
         </div>

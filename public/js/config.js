@@ -124,25 +124,18 @@ async function loadSystemConfig() {
 }
 
 function updateConfigUI() {
-    const themeSelect = document.getElementById('configDefaultTheme');
-    if (themeSelect) {
-        themeSelect.value = systemConfig.defaultTheme;
-    }
-
     ['openRegistration', 'auditLogging', 'loginWarning', 'autoLock'].forEach(key => {
-        const toggle = document.getElementById(`config${key.charAt(0).toUpperCase() + key.slice(1)}`);
-        if (toggle) {
-            toggle.classList.toggle('active', systemConfig[key]);
+        const el = document.getElementById(`config${key.charAt(0).toUpperCase() + key.slice(1)}`);
+        if (el) {
+            // Kompatibel dengan checkbox
+            el.checked = !!systemConfig[key];
         }
     });
 }
 
-function toggleConfig(key) {
-    systemConfig[key] = !systemConfig[key];
-    const toggle = document.getElementById(`config${key.charAt(0).toUpperCase() + key.slice(1)}`);
-    if (toggle) {
-        toggle.classList.toggle('active', systemConfig[key]);
-    }
+// Dipanggil dari onchange checkbox di modal system config
+function updateSystemConfig(key, value) {
+    systemConfig[key] = value;
 }
 
 async function saveSystemConfig() {

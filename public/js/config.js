@@ -89,7 +89,8 @@ GROWTH VS LALU : {growthApc}`;
 const REPORT_PLACEHOLDERS = [
     'tglSales', 'salesS1', 'salesS2', 'totalNet', 'akmSales', 'spd', 'growthSpd',
     'strukS1', 'strukS2', 'totalStruk', 'akmStruk', 'std', 'growthStd', 'apc', 'growthApc',
-    'prev_totalNet', 'prev_totalStruk', 'prev_spd', 'prev_std', 'prev_apc'
+    'prev_totalNet', 'prev_totalStruk', 'prev_spd', 'prev_std', 'prev_apc',
+    'catatan'
 ];
 
 // =====================================================

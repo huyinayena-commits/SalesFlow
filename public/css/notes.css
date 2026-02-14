@@ -1,0 +1,217 @@
+/* =====================================================
+   NOTES.CSS - STYLING CATATAN HARIAN
+   ===================================================== */
+
+/* Ikon catatan di kolom tanggal */
+.note-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    vertical-align: middle;
+    transition: background 0.15s ease, transform 0.15s ease;
+    color: var(--text-secondary);
+    opacity: 0.35;
+    flex-shrink: 0;
+}
+
+.note-btn:hover {
+    background: var(--hover-bg);
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+/* Ikon aktif - ada catatan */
+.note-btn.has-note {
+    opacity: 1;
+    color: var(--accent-color);
+    background: rgba(13, 110, 253, 0.08);
+}
+
+[data-theme="dark"] .note-btn.has-note {
+    background: rgba(56, 189, 248, 0.12);
+}
+
+.note-btn.has-note:hover {
+    background: rgba(13, 110, 253, 0.16);
+}
+
+[data-theme="dark"] .note-btn.has-note:hover {
+    background: rgba(56, 189, 248, 0.22);
+}
+
+/* Date cell flex layout */
+.date-cell {
+    position: relative;
+}
+
+.date-cell-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+.date-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Popover Note Editor */
+.note-popover {
+    position: fixed;
+    z-index: 9999;
+    width: 280px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: none;
+}
+
+.note-popover.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.note-popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 6px 14px;
+}
+
+.note-popover-header span {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.note-popover-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.note-popover-close:hover {
+    background: var(--hover-bg);
+}
+
+.note-popover-body {
+    padding: 0 14px 12px 14px;
+}
+
+.note-textarea {
+    width: 100%;
+    min-height: 72px;
+    max-height: 150px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.45;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.note-textarea:focus {
+    border-color: var(--input-focus);
+}
+
+.note-textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.note-popover-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    padding: 0 14px 12px 14px;
+}
+
+.note-popover-actions button {
+    padding: 6px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background 0.15s ease;
+}
+
+.note-popover-actions button:hover {
+    background: var(--hover-bg);
+}
+
+.note-popover-actions .note-save-btn {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}
+
+.note-popover-actions .note-save-btn:hover {
+    background: var(--accent-hover);
+}
+
+.note-popover-actions .note-delete-btn {
+    background: transparent;
+    color: var(--growth-negative);
+    border-color: transparent;
+}
+
+.note-popover-actions .note-delete-btn:hover {
+    background: var(--growth-negative-bg);
+}
+
+/* Preview tooltip saat hover ikon yang punya catatan */
+.note-btn .note-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-header);
+    color: var(--text-light);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: pre-wrap;
+    max-width: 200px;
+    z-index: 9998;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    line-height: 1.4;
+}
+
+.note-btn.has-note:hover .note-tooltip {
+    display: block;
+}

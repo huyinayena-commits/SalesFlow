@@ -66,7 +66,14 @@ const DataCache = {
         const docId = `salesData_${year}_${month}`;
         try {
             const doc = await db.collection("salesReports").doc(docId).get();
-            return doc.exists ? doc.data().data : null;
+            if (!doc.exists) return null;
+            const docData = doc.data();
+            // Simpan notes ke cache terpisah jika ada
+            if (docData.notes) {
+                this._notesCache = this._notesCache || {};
+                this._notesCache[this._key(year, month)] = docData.notes;
+            }
+            return docData.data;
         } catch (error) {
             console.error(`Error fetching ${docId}:`, error);
             throw error;
@@ -172,6 +179,9 @@ async function initializeMonth() {
     isDataLoaded = false;
 
     try {
+        // Reset catatan saat ganti bulan
+        DailyNotes.clear();
+
         generateTableStructure();
 
         const prefetchPromise = DataCache.prefetchPreviousMonth(year, month);
@@ -186,6 +196,14 @@ async function initializeMonth() {
 
         if (currentData) {
             populateTableData(currentData);
+        }
+
+        // Muat catatan dari cache notes
+        const notesKey = DataCache._key(year, month);
+        const cachedNotes = DataCache._notesCache && DataCache._notesCache[notesKey];
+        if (cachedNotes) {
+            DailyNotes.fromObject(cachedNotes);
+            refreshAllNoteButtons();
         }
 
         // Load target bulanan SEBELUM kalkulasi
@@ -236,7 +254,7 @@ function generateTableStructure() {
 
         row.innerHTML = `
             <td class="number-cell">${day}</td>
-            <td class="date-cell">${formatDate(date)}</td>
+            <td class="date-cell"><div class="date-cell-inner"><span class="date-text">${formatDate(date)}</span>${renderNoteButton(day - 1)}</div></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="0"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="1"></td>
             <td><input type="text" inputmode="decimal" data-row="${day - 1}" data-input="2"></td>
@@ -630,11 +648,17 @@ async function saveDataToServer() {
     const month = currentDate.getMonth();
     const docId = `salesData_${year}_${month}`;
     const data = collectTableData();
+    const notes = DailyNotes.toObject();
 
     await db.collection("salesReports").doc(docId).set({
         data: data,
+        notes: notes,
         timestamp: new Date()
     });
+
+    // Simpan notes ke cache
+    DataCache._notesCache = DataCache._notesCache || {};
+    DataCache._notesCache[DataCache._key(year, month)] = notes;
 
     DataCache.set(year, month, data);
 }
@@ -938,7 +962,8 @@ function getReportData(rowIndex) {
         std: formatReportNumber(parseNumber(currentInputs[9].value)),
         growthStd: formatGrowthForReport(getGrowthText(growthStdTd)),
         apc: formatReportNumber(parseNumber(currentInputs[10].value)),
-        growthApc: formatGrowthForReport(getGrowthText(growthApcTd))
+        growthApc: formatGrowthForReport(getGrowthText(growthApcTd)),
+        catatan: DailyNotes.get(rowIndex) || ''
     };
 
     let dataPrev = {

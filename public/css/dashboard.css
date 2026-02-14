@@ -1,0 +1,295 @@
+/* =====================================================
+   DASHBOARD.CSS - STYLING DASHBOARD ANALITIK
+   ===================================================== */
+
+/* Modal Dashboard - Fullscreen Overlay */
+.dashboard-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    z-index: 10000;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.dashboard-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--bg-header);
+    color: var(--text-light);
+    box-shadow: 0 2px 12px var(--shadow);
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.dashboard-header .dash-month-label {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-left: 10px;
+    font-weight: 400;
+}
+
+.dashboard-close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: var(--text-light);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.dashboard-close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Dashboard Body */
+.dashboard-body {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* KPI Cards Grid */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.kpi-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px var(--shadow);
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 14px 14px 0 0;
+}
+
+.kpi-card.kpi-total::before {
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.kpi-card.kpi-avg::before {
+    background: linear-gradient(90deg, #06b6d4, #22d3ee);
+}
+
+.kpi-card.kpi-best::before {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.kpi-card.kpi-target::before {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.kpi-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.kpi-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.kpi-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.kpi-sub.positive {
+    color: var(--growth-positive);
+}
+
+.kpi-sub.negative {
+    color: var(--growth-negative);
+}
+
+/* Chart Cards Grid */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.chart-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px;
+    transition: box-shadow 0.2s ease;
+}
+
+.chart-card:hover {
+    box-shadow: 0 4px 16px var(--shadow);
+}
+
+.chart-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-card-title svg {
+    opacity: 0.6;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-height: 300px;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    max-height: 300px;
+}
+
+/* Doughnut chart perlu container lebih kecil */
+.chart-container.doughnut {
+    max-width: 280px;
+    max-height: 280px;
+    margin: 0 auto;
+}
+
+/* Empty State */
+.dashboard-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.dashboard-empty svg {
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.dashboard-empty h3 {
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.dashboard-empty p {
+    font-size: 14px;
+    max-width: 360px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 14px 16px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 16px;
+    }
+
+    .dashboard-body {
+        padding: 14px;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .kpi-value {
+        font-size: 20px;
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .chart-container {
+        max-height: 240px;
+    }
+
+    .chart-container canvas {
+        max-height: 240px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .kpi-card {
+        padding: 14px 14px;
+    }
+
+    .kpi-value {
+        font-size: 18px;
+    }
+
+    .kpi-label {
+        font-size: 11px;
+    }
+}

@@ -98,3 +98,22 @@ function renderGrowthBadge(value) {
 
     return `<span class="growth-badge ${badgeClass}">${arrow}${text}</span>`;
 }
+
+// =====================================================
+// UI UTILITIES
+// =====================================================
+function adjustInputWidth(input) {
+    if (!input) return;
+    const value = input.value || '';
+    const length = value.length;
+
+    // Base min-width standard (sesuai CSS mobile) adalah sekitar 8ch - 10ch
+    // Jika panjang karakter > 8, kita lebaran
+    if (length > 8) {
+        // Tambahkan buffer 3 karakter agar kursor tidak tertutup
+        input.style.minWidth = (length + 3) + 'ch';
+    } else {
+        // Reset ke default CSS jika pendek
+        input.style.minWidth = '';
+    }
+}

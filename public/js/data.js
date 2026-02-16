@@ -292,6 +292,7 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
         setupEnterNavigation(input, rowIndex, index, totalDays);
         input.addEventListener('input', function () {
             formatInputValue(this);
+            adjustInputWidth(this);
             // Auto update totals for shift inputs
             if (index === 0 || index === 1) {
                 const totalInput = inputs[2];
@@ -319,6 +320,7 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
         }
         input.addEventListener('input', function () {
             formatInputValue(this);
+            adjustInputWidth(this);
             const hasValue = this.value.trim() !== '';
             this.dataset.manual = hasValue ? 'true' : 'false';
             this.classList.toggle('manual-override', hasValue);
@@ -435,6 +437,11 @@ function populateTableData(data) {
             inputs[8].dataset.manual = 'true';
             inputs[8].classList.add('manual-override');
         }
+
+        // Adjust width for all inputs
+        for (let j = 0; j < inputs.length; j++) {
+            adjustInputWidth(inputs[j]);
+        }
     }
 }
 
@@ -549,6 +556,10 @@ function calculateRow(rowIndex) {
             const growth = ((apc / prevApc) - 1) * 100;
             if (growthApcTd) growthApcTd.innerHTML = renderGrowthBadge(growth);
         }
+    }
+    // Adjust width for all inputs in this row
+    for (let j = 0; j < inputs.length; j++) {
+        adjustInputWidth(inputs[j]);
     }
 }
 

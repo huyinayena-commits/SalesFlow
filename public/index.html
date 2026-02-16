@@ -678,7 +678,26 @@
     <div id="dashboardOverlay" class="dashboard-overlay">
         <div class="dashboard-header">
             <h2>Dashboard Analitik <span class="dash-month-label" id="dashMonthLabel"></span></h2>
-            <button class="dashboard-close-btn" onclick="closeDashboard()">&times;</button>
+            <div class="dashboard-controls">
+                <select id="dashboardDateRange" onchange="renderDashboard()">
+                    <option value="all">Semua Data</option>
+                    <option value="today">Hari Ini</option>
+                    <option value="last7">7 Hari Terakhir</option>
+                    <option value="week1">Minggu Ke-1</option>
+                    <option value="week2">Minggu Ke-2</option>
+                    <option value="week3">Minggu Ke-3</option>
+                    <option value="week4">Minggu Ke-4</option>
+                </select>
+                <button class="btn-icon" onclick="printDashboard()" title="Cetak Laporan"
+                    style="background: rgba(255,255,255,0.1); color: var(--text-light); border: none; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                </button>
+                <button class="dashboard-close-btn" onclick="closeDashboard()">&times;</button>
+            </div>
         </div>
         <div class="dashboard-body">
             <!-- Empty State -->
@@ -715,6 +734,24 @@
                         <div class="kpi-label">Pencapaian Target</div>
                         <div class="kpi-value" id="kpiTarget">-</div>
                         <div class="kpi-sub" id="kpiTargetSub">-</div>
+                    </div>
+                </div>
+
+                <div class="kpi-grid" style="margin-top: 10px;">
+                    <div class="kpi-card kpi-lowest">
+                        <div class="kpi-label">Hari Terendah</div>
+                        <div class="kpi-value" id="kpiLowestDay">-</div>
+                        <div class="kpi-sub" id="kpiLowestDaySub">-</div>
+                    </div>
+                    <div class="kpi-card kpi-weekend">
+                        <div class="kpi-label">Weekend vs Weekday</div>
+                        <div class="kpi-value" id="kpiWeekendRatio">-</div>
+                        <div class="kpi-sub">Rata-rata Penjualan</div>
+                    </div>
+                    <div class="kpi-card kpi-projected">
+                        <div class="kpi-label">Proyeksi Akhir Bulan</div>
+                        <div class="kpi-value" id="kpiProjected">-</div>
+                        <div class="kpi-sub">Estimasi Total</div>
                     </div>
                 </div>
 

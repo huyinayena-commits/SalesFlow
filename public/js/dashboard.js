@@ -12,6 +12,10 @@ function openDashboard() {
     const overlay = document.getElementById('dashboardOverlay');
     if (!overlay) return;
 
+    // Reset filter ke 'all' setiap kali buka
+    const dateRangeEl = document.getElementById('dashboardDateRange');
+    if (dateRangeEl) dateRangeEl.value = 'all';
+
     // Tampilkan overlay
     overlay.style.display = 'block';
     // Trigger reflow agar animasi jalan
@@ -71,7 +75,8 @@ function getDashboardData() {
         data.push({
             day: i + 1,
             dayLabel: dayLabel,
-            dateLabel: dateLabel,
+            dateLabel: dateLabel, // e.g., "17 Feb 2026"
+            fullDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1),
             s1: parseNumber(inputs[0]?.value),
             s2: parseNumber(inputs[1]?.value),
             totalNet: parseNumber(inputs[2]?.value),
@@ -86,6 +91,35 @@ function getDashboardData() {
         });
     }
     return data;
+}
+
+// =====================================================
+// FILTER DATA
+// =====================================================
+function filterDashboardData(data, range) {
+    if (range === 'all') return data;
+
+    const today = new Date();
+    const currentDay = today.getDate();
+    // Hanya filter valid jika bulan dashboard sama dengan bulan saat ini
+    const isCurrentMonth = currentDate.getMonth() === today.getMonth() &&
+        currentDate.getFullYear() === today.getFullYear();
+
+    return data.filter(d => {
+        if (range === 'today') {
+            return isCurrentMonth && d.day === currentDay;
+        }
+        if (range === 'last7') {
+            return isCurrentMonth && d.day >= (currentDay - 6) && d.day <= currentDay;
+        }
+        if (range.startsWith('week')) {
+            const weekNum = parseInt(range.replace('week', ''));
+            const startDay = (weekNum - 1) * 7 + 1;
+            const endDay = weekNum * 7;
+            return d.day >= startDay && d.day <= endDay;
+        }
+        return true;
+    });
 }
 
 // =====================================================
@@ -112,15 +146,22 @@ function getChartColors() {
 function renderDashboard() {
     destroyAllCharts();
 
-    const data = getDashboardData();
+    const range = document.getElementById('dashboardDateRange')?.value || 'all';
+    const allData = getDashboardData();
+
+    // 1. Filter data untuk Chart & KPI List (sesuai range)
+    const filteredData = filterDashboardData(allData, range);
+
+    // 2. Data khusus untuk "Proyeksi" & "All Time Stats" selalu pakai full month data
+    // tapi yang sudah ada isinya (totalNet > 0)
+    const filledDataFull = allData.filter(d => d.totalNet > 0);
+    const filledDataFiltered = filteredData.filter(d => d.totalNet > 0);
+
     const monthLabel = document.getElementById('currentMonth')?.textContent || '';
     const dashMonthEl = document.getElementById('dashMonthLabel');
     if (dashMonthEl) dashMonthEl.textContent = monthLabel;
 
-    // Filter data yang punya penjualan
-    const filledData = data.filter(d => d.totalNet > 0);
-
-    if (filledData.length === 0) {
+    if (filledDataFiltered.length === 0) {
         showDashboardEmpty();
         return;
     }
@@ -131,14 +172,14 @@ function renderDashboard() {
     if (emptyEl) emptyEl.style.display = 'none';
     if (contentEl) contentEl.style.display = 'block';
 
-    // Render KPI cards
-    renderKPICards(filledData);
+    // Render KPI cards (Campuran antara data filter & full data)
+    renderKPICards(filledDataFiltered, filledDataFull, range);
 
-    // Render charts
-    renderSalesTrendChart(filledData);
-    renderShiftComparisonChart(filledData);
-    renderShiftCompositionChart(filledData);
-    renderAkmTrendChart(data);
+    // Render charts (Hanya data filter)
+    renderSalesTrendChart(filledDataFiltered);
+    renderShiftComparisonChart(filledDataFiltered);
+    renderShiftCompositionChart(filledDataFiltered);
+    renderAkmTrendChart(allData, range); // Khusus AKM mungkin butuh konteks full
 }
 
 function showDashboardEmpty() {
@@ -151,37 +192,85 @@ function showDashboardEmpty() {
 // =====================================================
 // KPI CARDS
 // =====================================================
-function renderKPICards(data) {
-    // Total Penjualan bulan ini
+function renderKPICards(data, fullData, range) {
+    // Total Penjualan & Rata-rata (Berdasarkan Range Filter)
     const totalSales = data.reduce((sum, d) => sum + d.totalNet, 0);
-
-    // Rata-rata harian
     const avgDaily = data.length > 0 ? totalSales / data.length : 0;
 
-    // Hari terbaik
+    // Hari Terbaik (Berdasarkan Range Filter)
     let bestDay = data[0] || {};
     data.forEach(d => {
         if (d.totalNet > bestDay.totalNet) bestDay = d;
     });
 
-    // Pencapaian target
+    // Hari Terendah (Berdasarkan Range Filter)
+    let lowestDay = data[0] || {};
+    data.forEach(d => {
+        if (d.totalNet < lowestDay.totalNet && d.totalNet > 0) lowestDay = d;
+    });
+
+    // Pencapaian Target (Selalu berdasarkan data terakhir yg terisi di bulan ini)
     const targetSpd = currentMonthTarget?.targetSpd || 0;
-    const lastFilledSpd = data.length > 0 ? data[data.length - 1].spd : 0;
+    const lastFilledSpd = fullData.length > 0 ? fullData[fullData.length - 1].spd : 0;
     const targetPercent = targetSpd > 0 ? ((lastFilledSpd / targetSpd) * 100).toFixed(1) : 0;
 
+    // --- NEW KPI LOGIC ---
+
+    // Weekend vs Weekday Ratio (Berdasarkan Full Data Bulan Ini)
+    let weekendSales = 0, weekendCount = 0;
+    let weekdaySales = 0, weekdayCount = 0;
+
+    fullData.forEach(d => {
+        const isWeekend = d.fullDate.getDay() === 0 || d.fullDate.getDay() === 6; // 0=Sun, 6=Sat
+        if (isWeekend) {
+            weekendSales += d.totalNet;
+            weekendCount++;
+        } else {
+            weekdaySales += d.totalNet;
+            weekdayCount++;
+        }
+    });
+
+    const avgWeekend = weekendCount > 0 ? weekendSales / weekendCount : 0;
+    const avgWeekday = weekdayCount > 0 ? weekdaySales / weekdayCount : 0;
+    // Ratio: seberapa besar weekend dibanding weekday (e.g. 1.2x)
+    const weekendRatio = avgWeekday > 0 ? (avgWeekend / avgWeekday).toFixed(1) : 'N/A';
+
+    // Proyeksi Akhir Bulan (Simple Projection: Avg Daily * Days in Month)
+    const daysInMonth = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+    // Gunakan average dari full data yang sudah berjalan agar lebih akurat
+    const avgFull = fullData.length > 0 ? fullData.reduce((s, d) => s + d.totalNet, 0) / fullData.length : 0;
+    const projectedTotal = Math.floor(avgFull * daysInMonth);
+
+
     // Update DOM
-    const elTotal = document.getElementById('kpiTotalSales');
-    const elAvg = document.getElementById('kpiAvgDaily');
-    const elBest = document.getElementById('kpiBestDay');
-    const elBestSub = document.getElementById('kpiBestDaySub');
+    document.getElementById('kpiTotalSales').textContent = formatNumber(totalSales);
+    document.getElementById('kpiAvgDaily').textContent = formatNumber(Math.round(avgDaily));
+
+    document.getElementById('kpiBestDay').textContent = formatNumber(bestDay.totalNet);
+    document.getElementById('kpiBestDaySub').textContent = `Tanggal ${bestDay.day} (${bestDay.dayLabel})`;
+
+    // New KPIs DOM
+    const elLowest = document.getElementById('kpiLowestDay');
+    if (elLowest) {
+        elLowest.textContent = formatNumber(lowestDay.totalNet);
+        document.getElementById('kpiLowestDaySub').textContent = `Tanggal ${lowestDay.day} (${lowestDay.dayLabel})`;
+    }
+
+    const elWeekend = document.getElementById('kpiWeekendRatio');
+    if (elWeekend) {
+        // Tampilkan format: "Rp 5jt vs Rp 4jt"
+        elWeekend.textContent = `${formatNumber(Math.round(avgWeekend))} / ${formatNumber(Math.round(avgWeekday))}`;
+    }
+
+    const elProjected = document.getElementById('kpiProjected');
+    if (elProjected) {
+        elProjected.textContent = formatNumber(projectedTotal);
+    }
+
+    // Target Logic
     const elTarget = document.getElementById('kpiTarget');
     const elTargetSub = document.getElementById('kpiTargetSub');
-
-    if (elTotal) elTotal.textContent = formatNumber(totalSales);
-    if (elAvg) elAvg.textContent = formatNumber(Math.round(avgDaily));
-    if (elBest) elBest.textContent = formatNumber(bestDay.totalNet);
-    if (elBestSub) elBestSub.textContent = `Tanggal ${bestDay.day} (${bestDay.dayLabel})`;
-
     if (targetSpd > 0) {
         if (elTarget) elTarget.textContent = `${targetPercent}%`;
         if (elTargetSub) {
@@ -220,10 +309,10 @@ function renderSalesTrendChart(data) {
                 borderWidth: 2.5,
                 fill: true,
                 tension: 0.35,
-                pointRadius: 3,
-                pointHoverRadius: 6,
+                pointRadius: 4,               // Lebih besar agar mudah diklik
+                pointHoverRadius: 7,
                 pointBackgroundColor: colors.primary,
-                pointBorderColor: colors.primary,
+                pointBorderColor: '#fff',
             }]
         },
         options: {
@@ -249,7 +338,6 @@ function renderSalesTrendChart(data) {
                 x: {
                     grid: { color: colors.gridColor },
                     ticks: { color: colors.textSecondary, font: { size: 11 } },
-                    title: { display: true, text: 'Tanggal', color: colors.textSecondary, font: { size: 11 } }
                 },
                 y: {
                     grid: { color: colors.gridColor },
@@ -310,6 +398,8 @@ function renderShiftComparisonChart(data) {
                     labels: { color: colors.textSecondary, font: { size: 11 }, boxWidth: 12, padding: 12 }
                 },
                 tooltip: {
+                    mode: 'index',
+                    intersect: false,
                     callbacks: {
                         label: function (ctx) {
                             return ctx.dataset.label + ': Rp ' + formatNumber(ctx.parsed.y);
@@ -321,7 +411,6 @@ function renderShiftComparisonChart(data) {
                 x: {
                     grid: { display: false },
                     ticks: { color: colors.textSecondary, font: { size: 10 } },
-                    title: { display: true, text: 'Tanggal', color: colors.textSecondary, font: { size: 11 } }
                 },
                 y: {
                     grid: { color: colors.gridColor },
@@ -330,7 +419,6 @@ function renderShiftComparisonChart(data) {
                         font: { size: 11 },
                         callback: function (value) {
                             if (value >= 1000000) return (value / 1000000).toFixed(1) + 'jt';
-                            if (value >= 1000) return (value / 1000).toFixed(0) + 'rb';
                             return value;
                         }
                     }
@@ -391,20 +479,27 @@ function renderShiftCompositionChart(data) {
 // =====================================================
 // AREA CHART - TREN AKUMULASI (AKM)
 // =====================================================
-function renderAkmTrendChart(data) {
+function renderAkmTrendChart(data, range) {
     const ctx = document.getElementById('chartAkmTrend')?.getContext('2d');
     if (!ctx) return;
 
     const colors = getChartColors();
-    // Hanya tampilkan hingga data terakhir yang ada isinya
-    const filledData = data.filter(d => d.akmSales > 0);
-    if (filledData.length === 0) return;
 
-    const labels = filledData.map(d => `${d.day}`);
+    // Logic: Jika range != all, kita tetap tampilkan trend chart tapi di-slice
+    // Namun AKM adalah data akumulatif, jadi memotong grafik di tengah agak aneh
+    // TAPI user minta filter. Jadi kita potong visualnya saja.
+
+    let filtered = filterDashboardData(data, range);
+    // Hapus yang nol
+    filtered = filtered.filter(d => d.akmSales > 0);
+
+    if (filtered.length === 0) return;
+
+    const labels = filtered.map(d => `${d.day}`);
 
     const datasets = [{
         label: 'AKM Penjualan',
-        data: filledData.map(d => d.akmSales),
+        data: filtered.map(d => d.akmSales),
         borderColor: colors.primary,
         backgroundColor: colors.bgFill1,
         borderWidth: 2,
@@ -419,7 +514,7 @@ function renderAkmTrendChart(data) {
     if (targetAkm > 0) {
         datasets.push({
             label: 'Target AKM',
-            data: filledData.map(() => targetAkm),
+            data: filtered.map(() => targetAkm),
             borderColor: colors.tertiary,
             borderWidth: 2,
             borderDash: [8, 4],
@@ -451,7 +546,6 @@ function renderAkmTrendChart(data) {
                 x: {
                     grid: { color: colors.gridColor },
                     ticks: { color: colors.textSecondary, font: { size: 11 } },
-                    title: { display: true, text: 'Tanggal', color: colors.textSecondary, font: { size: 11 } }
                 },
                 y: {
                     grid: { color: colors.gridColor },
@@ -459,9 +553,7 @@ function renderAkmTrendChart(data) {
                         color: colors.textSecondary,
                         font: { size: 11 },
                         callback: function (value) {
-                            if (value >= 1000000000) return (value / 1000000000).toFixed(1) + 'M';
                             if (value >= 1000000) return (value / 1000000).toFixed(1) + 'jt';
-                            if (value >= 1000) return (value / 1000).toFixed(0) + 'rb';
                             return value;
                         }
                     }
@@ -471,4 +563,11 @@ function renderAkmTrendChart(data) {
         }
     });
     dashboardCharts.push(chart);
+}
+
+// =====================================================
+// EXPORT / PRINT FUNCTION
+// =====================================================
+function printDashboard() {
+    window.print();
 }

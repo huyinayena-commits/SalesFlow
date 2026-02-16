@@ -680,7 +680,7 @@
             <h2>Dashboard Analitik <span class="dash-month-label" id="dashMonthLabel"></span></h2>
             <div class="dashboard-controls">
                 <select id="dashboardDateRange" onchange="renderDashboard()">
-                    <option value="all">Semua Data</option>
+                    <option value="all">Bulan Ini</option>
                     <option value="today">Hari Ini</option>
                     <option value="last7">7 Hari Terakhir</option>
                     <option value="week1">Minggu Ke-1</option>
@@ -730,34 +730,16 @@
                         <div class="kpi-value" id="kpiBestDay">-</div>
                         <div class="kpi-sub" id="kpiBestDaySub">-</div>
                     </div>
-                    <div class="kpi-card kpi-target">
-                        <div class="kpi-label">Pencapaian Target</div>
-                        <div class="kpi-value" id="kpiTarget">-</div>
-                        <div class="kpi-sub" id="kpiTargetSub">-</div>
-                    </div>
-                </div>
-
-                <div class="kpi-grid" style="margin-top: 10px;">
                     <div class="kpi-card kpi-lowest">
                         <div class="kpi-label">Hari Terendah</div>
                         <div class="kpi-value" id="kpiLowestDay">-</div>
                         <div class="kpi-sub" id="kpiLowestDaySub">-</div>
                     </div>
-                    <div class="kpi-card kpi-weekend">
-                        <div class="kpi-label">Weekend vs Weekday</div>
-                        <div class="kpi-value" id="kpiWeekendRatio">-</div>
-                        <div class="kpi-sub">Rata-rata Penjualan</div>
-                    </div>
-                    <div class="kpi-card kpi-projected">
-                        <div class="kpi-label">Proyeksi Akhir Bulan</div>
-                        <div class="kpi-value" id="kpiProjected">-</div>
-                        <div class="kpi-sub">Estimasi Total</div>
-                    </div>
                 </div>
 
                 <!-- Charts -->
                 <div class="chart-grid">
-                    <div class="chart-card full-width">
+                    <div id="cardSalesTrend" class="chart-card full-width">
                         <div class="chart-card-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -767,7 +749,7 @@
                         </div>
                         <div class="chart-container"><canvas id="chartSalesTrend"></canvas></div>
                     </div>
-                    <div class="chart-card">
+                    <div id="cardShiftComparison" class="chart-card">
                         <div class="chart-card-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -778,7 +760,7 @@
                         </div>
                         <div class="chart-container"><canvas id="chartShiftComparison"></canvas></div>
                     </div>
-                    <div class="chart-card">
+                    <div id="cardShiftComposition" class="chart-card">
                         <div class="chart-card-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -789,7 +771,7 @@
                         </div>
                         <div class="chart-container doughnut"><canvas id="chartShiftComposition"></canvas></div>
                     </div>
-                    <div class="chart-card full-width">
+                    <div id="cardAkmTrend" class="chart-card full-width">
                         <div class="chart-card-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">

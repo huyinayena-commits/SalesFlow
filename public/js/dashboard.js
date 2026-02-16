@@ -175,11 +175,36 @@ function renderDashboard() {
     // Render KPI cards (Campuran antara data filter & full data)
     renderKPICards(filledDataFiltered, filledDataFull, range);
 
+    // Toggle Visibility based on range
+    const isToday = range === 'today';
+
+    // Hide Trend Charts on Today view (useless with 1 point)
+    toggleElement('cardSalesTrend', !isToday);
+    toggleElement('cardAkmTrend', !isToday);
+
+    // Hide Best/Lowest KPIs on Today view
+    // Note: We need to target the KPI cards specifically. 
+    // They don't have IDs yet, but we can find them by class.
+    const kpiBest = document.querySelector('.kpi-best');
+    const kpiLowest = document.querySelector('.kpi-lowest');
+    if (kpiBest) kpiBest.style.display = isToday ? 'none' : 'block';
+    if (kpiLowest) kpiLowest.style.display = isToday ? 'none' : 'block';
+
     // Render charts (Hanya data filter)
-    renderSalesTrendChart(filledDataFiltered);
+    // Only render if visible
+    if (!isToday) {
+        renderSalesTrendChart(filledDataFiltered);
+        renderAkmTrendChart(allData, range);
+    }
+
+    // Shift charts are always relevant
     renderShiftComparisonChart(filledDataFiltered);
     renderShiftCompositionChart(filledDataFiltered);
-    renderAkmTrendChart(allData, range); // Khusus AKM mungkin butuh konteks full
+}
+
+function toggleElement(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? 'block' : 'none';
 }
 
 function showDashboardEmpty() {
@@ -197,6 +222,12 @@ function renderKPICards(data, fullData, range) {
     const totalSales = data.reduce((sum, d) => sum + d.totalNet, 0);
     const avgDaily = data.length > 0 ? totalSales / data.length : 0;
 
+    // Update Label untuk "Total Penjualan"
+    const kpiTotalLabel = document.querySelector('.kpi-total .kpi-label');
+    const kpiTotalSub = document.querySelector('.kpi-total .kpi-sub');
+    if (kpiTotalLabel) kpiTotalLabel.textContent = range === 'today' ? 'Penjualan Hari Ini' : 'Total Penjualan';
+    if (kpiTotalSub) kpiTotalSub.textContent = range === 'today' ? 'Real-time' : 'Bulan ini';
+
     // Hari Terbaik (Berdasarkan Range Filter)
     let bestDay = data[0] || {};
     data.forEach(d => {
@@ -209,80 +240,25 @@ function renderKPICards(data, fullData, range) {
         if (d.totalNet < lowestDay.totalNet && d.totalNet > 0) lowestDay = d;
     });
 
-    // Pencapaian Target (Selalu berdasarkan data terakhir yg terisi di bulan ini)
-    const targetSpd = currentMonthTarget?.targetSpd || 0;
-    const lastFilledSpd = fullData.length > 0 ? fullData[fullData.length - 1].spd : 0;
-    const targetPercent = targetSpd > 0 ? ((lastFilledSpd / targetSpd) * 100).toFixed(1) : 0;
-
-    // --- NEW KPI LOGIC ---
-
-    // Weekend vs Weekday Ratio (Berdasarkan Full Data Bulan Ini)
-    let weekendSales = 0, weekendCount = 0;
-    let weekdaySales = 0, weekdayCount = 0;
-
-    fullData.forEach(d => {
-        const isWeekend = d.fullDate.getDay() === 0 || d.fullDate.getDay() === 6; // 0=Sun, 6=Sat
-        if (isWeekend) {
-            weekendSales += d.totalNet;
-            weekendCount++;
-        } else {
-            weekdaySales += d.totalNet;
-            weekdayCount++;
-        }
-    });
-
-    const avgWeekend = weekendCount > 0 ? weekendSales / weekendCount : 0;
-    const avgWeekday = weekdayCount > 0 ? weekdaySales / weekdayCount : 0;
-    // Ratio: seberapa besar weekend dibanding weekday (e.g. 1.2x)
-    const weekendRatio = avgWeekday > 0 ? (avgWeekend / avgWeekday).toFixed(1) : 'N/A';
-
-    // Proyeksi Akhir Bulan (Simple Projection: Avg Daily * Days in Month)
-    const daysInMonth = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
-    // Gunakan average dari full data yang sudah berjalan agar lebih akurat
-    const avgFull = fullData.length > 0 ? fullData.reduce((s, d) => s + d.totalNet, 0) / fullData.length : 0;
-    const projectedTotal = Math.floor(avgFull * daysInMonth);
-
-
     // Update DOM
-    document.getElementById('kpiTotalSales').textContent = formatNumber(totalSales);
-    document.getElementById('kpiAvgDaily').textContent = formatNumber(Math.round(avgDaily));
-
-    document.getElementById('kpiBestDay').textContent = formatNumber(bestDay.totalNet);
-    document.getElementById('kpiBestDaySub').textContent = `Tanggal ${bestDay.day} (${bestDay.dayLabel})`;
-
-    // New KPIs DOM
+    const elTotal = document.getElementById('kpiTotalSales');
+    const elAvg = document.getElementById('kpiAvgDaily');
+    const elBest = document.getElementById('kpiBestDay');
+    const elBestSub = document.getElementById('kpiBestDaySub');
     const elLowest = document.getElementById('kpiLowestDay');
+    const elLowestSub = document.getElementById('kpiLowestDaySub');
+
+    if (elTotal) elTotal.textContent = formatNumber(totalSales);
+    if (elAvg) elAvg.textContent = formatNumber(Math.round(avgDaily));
+
+    if (elBest) {
+        elBest.textContent = formatNumber(bestDay.totalNet);
+        if (elBestSub) elBestSub.textContent = `Tanggal ${bestDay.day} (${bestDay.dayLabel})`;
+    }
+
     if (elLowest) {
         elLowest.textContent = formatNumber(lowestDay.totalNet);
-        document.getElementById('kpiLowestDaySub').textContent = `Tanggal ${lowestDay.day} (${lowestDay.dayLabel})`;
-    }
-
-    const elWeekend = document.getElementById('kpiWeekendRatio');
-    if (elWeekend) {
-        // Tampilkan format: "Rp 5jt vs Rp 4jt"
-        elWeekend.textContent = `${formatNumber(Math.round(avgWeekend))} / ${formatNumber(Math.round(avgWeekday))}`;
-    }
-
-    const elProjected = document.getElementById('kpiProjected');
-    if (elProjected) {
-        elProjected.textContent = formatNumber(projectedTotal);
-    }
-
-    // Target Logic
-    const elTarget = document.getElementById('kpiTarget');
-    const elTargetSub = document.getElementById('kpiTargetSub');
-    if (targetSpd > 0) {
-        if (elTarget) elTarget.textContent = `${targetPercent}%`;
-        if (elTargetSub) {
-            elTargetSub.textContent = `SPD ${formatNumber(Math.round(lastFilledSpd))} / ${formatNumber(targetSpd)}`;
-            elTargetSub.className = 'kpi-sub ' + (parseFloat(targetPercent) >= 100 ? 'positive' : 'negative');
-        }
-    } else {
-        if (elTarget) elTarget.textContent = '-';
-        if (elTargetSub) {
-            elTargetSub.textContent = 'Target belum diisi';
-            elTargetSub.className = 'kpi-sub';
-        }
+        if (elLowestSub) elLowestSub.textContent = `Tanggal ${lowestDay.day} (${lowestDay.dayLabel})`;
     }
 }
 

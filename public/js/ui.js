@@ -478,11 +478,11 @@ function handleQuickSave() {
     // Only update if there's a value
     if (salesS1 > 0) inputs[0].value = formatNumber(salesS1);
     if (salesS2 > 0) inputs[1].value = formatNumber(salesS2);
-    if (strukS1 > 0) inputs[7].value = formatNumber(strukS1);
-    if (strukS2 > 0) inputs[8].value = formatNumber(strukS2);
+    if (strukS1 > 0) inputs[5].value = formatNumber(strukS1);
+    if (strukS2 > 0) inputs[6].value = formatNumber(strukS2);
 
     delete inputs[2].dataset.manual; inputs[2].classList.remove('manual-override');
-    delete inputs[9].dataset.manual; inputs[9].classList.remove('manual-override');
+    delete inputs[7].dataset.manual; inputs[7].classList.remove('manual-override');
 
     handleRowChange(rowIndex);
     setDirty(true);

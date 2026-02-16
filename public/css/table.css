@@ -120,13 +120,7 @@ tr:hover td {
    ROW STATES
    ===================================================== */
 
-.weekend {
-    background-color: var(--weekend-bg) !important;
-}
 
-.weekend:hover {
-    background-color: var(--weekend-hover) !important;
-}
 
 .selected-row td {
     background-color: var(--selected-bg) !important;
@@ -162,19 +156,7 @@ tbody tr {
     }
 }
 
-tr.weekend.highlight-today td {
-    animation: highlight-fade-weekend 2s ease-out;
-}
 
-@keyframes highlight-fade-weekend {
-    0% {
-        background-color: var(--highlight-bg);
-    }
-
-    100% {
-        background-color: var(--weekend-bg);
-    }
-}
 
 /* =====================================================
    TABLE INPUTS

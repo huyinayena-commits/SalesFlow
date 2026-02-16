@@ -58,6 +58,7 @@ Data tidak disimpan per hari, melainkan **per bulan** dalam satu dokumen untuk m
       "akmStruk": 190,        // (totalStruk hari ini + akmStruk kemarin) OR Manual
       "std": 95,              // akmStruk / (index hari + 1)
       "apc": 36842,           // spd / std
+      "achm": 105.5,          // (spd / targetSpd) * 100 (Disimpan sebagai data-attribute di UI, tapi ada di export)
       
       // -- Flags untuk Manual Override (PENTING) --
       // Jika true, kalkulasi otomatis tidak akan menimpa nilai ini lagi
@@ -81,6 +82,13 @@ Sistem menggunakan pendekatan "Cascading Update".
     *   Jika data ada, bandingkan `SPD Hari Ini` vs `SPD Tanggal Sama Bulan Lalu`.
     *   Rumus: `((Current / Prev) - 1) * 100`.
     *   Visual: Merah jika minus, Hijau jika positif.
+    
+    ### C. Target & Achievement System (Missing in Initial Docs)
+    Fitur target bulanan yang disimpan di collection `monthlyTargets`.
+    *   **Input**: User set `Target SPD` dan `Target AKM` per bulan.
+    *   **Calculation**: 
+        *   `ACHM` (Achievement) dihitung otomatis setiap baris: `(SPD Aktual / Target SPD) * 100`.
+        *   Visualisasi di kolom `ACHM`.
 
 ### C. Quick Input Mode (Fitur Unik)
 Fitur ini tidak terlihat di tabel utama, tapi ada di tombol FAB (`+`).
@@ -113,6 +121,9 @@ Sistem ini menerapkan "Semi-Closed Registration".
     *   Input untuk tanggal lain di-disable (`readonly`).
 *   `Admin`: Full akses edit data kapanpun.
 *   `Super Admin`: Full akses + Panel manajemen user.
+    
+    > [!NOTE]
+    > **Dev Mode Bypass**: Jika aplikasi dijalankan di `localhost` atau port `3000`, sistem otomatis mem-bypass login dan memberikan role `superadmin` (Live Preview Mode).
 
 ---
 
@@ -141,7 +152,7 @@ Konfigurasi tersentralisasi yang bisa diubah Super Admin tanpa coding:
 *   `autoLock`: Fitur (shadow) untuk mengunci data lama secara otomatis (terimplementasi sebagian).
 
 ## 6. Integrasi Eksternal & Utilitas
-*   **Template Report Generator**: Menggunakan *placeholder substitution* (`{spd}`, `{totalNet}`) untuk membuat teks laporan WhatsApp yang dinamis sesuai data hari yang dipilih.
+*   **Template Report Generator**: Menggunakan *placeholder substitution* (`{spd}`, `{totalNet}`) untuk membuat teks laporan WhatsApp. Template disimpan di `localStorage` browser sehingga user bisa kustomisasi format laporan mereka sendiri.
 *   **JSON Import/Export**: Backup data manual dalam format JSON array plain text.
 
 ## 7. Rekomendasi Stack untuk Rewrite (Modernisasi)

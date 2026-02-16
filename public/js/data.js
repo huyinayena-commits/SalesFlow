@@ -250,7 +250,7 @@ function generateTableStructure() {
         const date = new Date(year, month, day);
         const row = document.createElement('tr');
         row.dataset.rowindex = day - 1;
-        if (isWeekend(date)) row.classList.add('weekend');
+
 
         row.innerHTML = `
             <td class="number-cell">${day}</td>

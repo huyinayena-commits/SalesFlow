@@ -522,6 +522,35 @@ button:active {
     transform: translateX(4px);
 }
 
+/* Dropdown select di dalam setting-item */
+.modal-body .setting-item select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: rgba(15, 24, 43, 0.6);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.modal-body .setting-item select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+/* Label timestamp backup */
+.backup-timestamp {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
 .modal-body h3 {
     font-size: 16px;
     margin-top: 20px;

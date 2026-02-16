@@ -62,11 +62,13 @@ async function checkUserRole(email) {
 function updateUIForRole() {
     const adminModeSection = document.getElementById('adminModeSection');
     const userManagementSection = document.getElementById('userManagementSection');
+    const telegramBackupSection = document.getElementById('telegramBackupSection');
     const userRoleBadge = document.getElementById('userRoleBadge');
 
     // Reset
     if (adminModeSection) adminModeSection.style.display = 'none';
     if (userManagementSection) userManagementSection.style.display = 'none';
+    if (telegramBackupSection) telegramBackupSection.style.display = 'none';
     if (userRoleBadge) userRoleBadge.innerHTML = '';
 
     if (!currentUserRole) return;
@@ -81,11 +83,13 @@ function updateUIForRole() {
             badgeText = 'Super Admin';
             if (adminModeSection) adminModeSection.style.display = 'none';
             if (userManagementSection) userManagementSection.style.display = 'block';
+            if (telegramBackupSection) telegramBackupSection.style.display = 'block';
             break;
         case 'admin':
             badgeClass = 'badge-admin';
             badgeText = 'Admin';
             if (adminModeSection) adminModeSection.style.display = 'none';
+            if (telegramBackupSection) telegramBackupSection.style.display = 'block';
             break;
         case 'staff':
             badgeClass = 'badge-staff';
@@ -320,6 +324,12 @@ auth.onAuthStateChanged(async (user) => {
         await logAuditAction('login', `User logged in: ${user.email}`);
         updateUIForRole();
         await initializeMonth();
+
+        // Muat preferensi backup & cek auto-backup (hanya admin/superadmin)
+        if (currentUserRole === 'superadmin' || currentUserRole === 'admin') {
+            loadBackupPreference();
+            checkAutoBackup();
+        }
     } else {
         // Check for Dev/Live Preview Environment
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '3000') {
@@ -335,6 +345,11 @@ auth.onAuthStateChanged(async (user) => {
             showMessage('Mode Super Admin Aktif (Live Preview)');
             generateTableStructure();
             await initializeMonth();
+
+            // Muat preferensi backup & cek auto-backup (dev env)
+            loadBackupPreference();
+            checkAutoBackup();
+
             hideLoading();
             return;
         }

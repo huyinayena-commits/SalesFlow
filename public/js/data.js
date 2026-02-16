@@ -91,6 +91,25 @@ const DataCache = {
                 // Data bulan lalu opsional
             }
         }
+    },
+
+    // Background loader: prefetch data historis (non-blocking)
+    async prefetchHistory(currentYear, currentMonth, depth = 6) {
+        // Mulai dari bulan ke-2 ke belakang (bulan lalu sudah di-prefetch terpisah)
+        for (let i = 2; i <= depth; i++) {
+            let y = currentYear;
+            let m = currentMonth - i;
+            // Handle tahun mundur
+            while (m < 0) { y--; m += 12; }
+            if (!this.has(y, m)) {
+                try {
+                    await this.fetch(y, m);
+                } catch (e) {
+                    // History opsional, lanjut ke bulan berikutnya
+                }
+            }
+        }
+        console.log('Background history prefetch selesai');
     }
 };
 
@@ -184,16 +203,21 @@ async function initializeMonth() {
 
         generateTableStructure();
 
-        const prefetchPromise = DataCache.prefetchPreviousMonth(year, month);
-        const currentData = await DataCache.fetch(year, month);
+        // ====================================================
+        // TAHAP 1: CRITICAL PATH (Paralel, Blocking)
+        // Fetch bulan ini + target secara bersamaan
+        // ====================================================
+        const [currentData] = await Promise.all([
+            DataCache.fetch(year, month),
+            loadMonthlyTarget(year, month)
+        ]);
 
         if (loadId !== currentLoadId) {
             console.log('Load cancelled - month changed');
             return;
         }
 
-        await prefetchPromise;
-
+        // Render tabel LANGSUNG (tanpa menunggu bulan lalu)
         if (currentData) {
             populateTableData(currentData);
         }
@@ -206,15 +230,31 @@ async function initializeMonth() {
             refreshAllNoteButtons();
         }
 
-        // Load target bulanan SEBELUM kalkulasi
-        await loadMonthlyTarget(year, month);
-
+        // Kalkulasi awal (tanpa growth badges dulu)
         calculateAllRows();
         updateSummary();
 
         updateCacheStatus('synced');
         scrollToToday();
         isDataLoaded = true;
+
+        // ====================================================
+        // TAHAP 2: BACKGROUND - Bulan Lalu (Non-blocking)
+        // Setelah tabel sudah muncul, fetch bulan lalu
+        // lalu re-render growth badges
+        // ====================================================
+        DataCache.prefetchPreviousMonth(year, month).then(() => {
+            if (loadId !== currentLoadId) return;
+            // Re-kalkulasi untuk menampilkan growth badges
+            calculateAllRows();
+            updateSummary();
+        });
+
+        // ====================================================
+        // TAHAP 3: BACKGROUND - History (Non-blocking, Silent)
+        // Preload 6 bulan terakhir untuk Export & Dashboard
+        // ====================================================
+        DataCache.prefetchHistory(year, month);
 
     } catch (error) {
         console.error('Error initializing month:', error);

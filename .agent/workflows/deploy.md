@@ -13,12 +13,17 @@ description: Cara deploy aplikasi SalesFlow ke Firebase Hosting
 firebase login
 ```
 
-2. Deploy ke Firebase Hosting:
+2. Push perubahan ke GitHub:
+```bash
+git push https://<YOUR_TOKEN>@github.com/huyinayena-commits/SalesFlow.git main
+```
+
+3. Deploy ke Firebase Hosting:
 ```bash
 firebase deploy
 ```
 
-3. Setelah berhasil, aplikasi akan tersedia di:
+4. Setelah berhasil, aplikasi akan tersedia di:
    - https://salesflow-35f8d.web.app
    - https://salesflow-35f8d.firebaseapp.com
 

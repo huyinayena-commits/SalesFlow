@@ -363,7 +363,11 @@ function setupInputEventListeners(inputs, rowIndex, totalDays) {
             adjustInputWidth(this);
             const hasValue = this.value.trim() !== '';
             this.dataset.manual = hasValue ? 'true' : 'false';
-            this.classList.toggle('manual-override', hasValue);
+            if (typeof showManualOverride !== 'undefined' && showManualOverride) {
+                this.classList.toggle('manual-override', hasValue);
+            } else {
+                this.classList.remove('manual-override');
+            }
 
             if ((index === 2 || index === 7) && hasValue) {
                 const totalVal = parseNumber(this.value);
@@ -463,19 +467,19 @@ function populateTableData(data) {
 
         if (d.m_total) {
             inputs[2].dataset.manual = 'true';
-            inputs[2].classList.add('manual-override');
+            if (typeof showManualOverride !== 'undefined' && showManualOverride) inputs[2].classList.add('manual-override');
         }
         if (d.m_akmS) {
             inputs[3].dataset.manual = 'true';
-            inputs[3].classList.add('manual-override');
+            if (typeof showManualOverride !== 'undefined' && showManualOverride) inputs[3].classList.add('manual-override');
         }
         if (d.m_totalSt) {
             inputs[7].dataset.manual = 'true';
-            inputs[7].classList.add('manual-override');
+            if (typeof showManualOverride !== 'undefined' && showManualOverride) inputs[7].classList.add('manual-override');
         }
         if (d.m_akmSt) {
             inputs[8].dataset.manual = 'true';
-            inputs[8].classList.add('manual-override');
+            if (typeof showManualOverride !== 'undefined' && showManualOverride) inputs[8].classList.add('manual-override');
         }
 
         // Adjust width for all inputs

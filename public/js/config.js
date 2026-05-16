@@ -98,6 +98,7 @@ const REPORT_PLACEHOLDERS = [
 // =====================================================
 let currentDate = new Date();
 let currentTheme = localStorage.getItem('theme') || 'light';
+let showManualOverride = localStorage.getItem('showManualOverride') !== 'false';
 let selectedRowIndex = null;
 let isLoading = false;
 let currentLoadId = 0;

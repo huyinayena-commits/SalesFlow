@@ -74,6 +74,7 @@ function updateSaveButtonState() {
 function initTheme() {
     document.documentElement.setAttribute('data-theme', currentTheme);
     updateThemeButton();
+    updateManualOverrideButton();
 }
 
 function toggleTheme() {
@@ -95,6 +96,38 @@ function updateThemeButton() {
     } else {
         icon.textContent = String.fromCodePoint(0x1F319); // Moon emoji
         text.textContent = 'Dark';
+    }
+}
+
+function toggleManualOverrideSetting() {
+    showManualOverride = !showManualOverride;
+    localStorage.setItem('showManualOverride', showManualOverride);
+    updateManualOverrideButton();
+    
+    // Refresh table to apply/remove classes
+    const manualInputs = document.querySelectorAll('td input[data-manual]');
+    manualInputs.forEach(input => {
+        if (showManualOverride) {
+            input.classList.add('manual-override');
+        } else {
+            input.classList.remove('manual-override');
+        }
+    });
+    
+    showMessage(showManualOverride ? 'Penanda Manual Aktif' : 'Penanda Manual Nonaktif');
+}
+
+function updateManualOverrideButton() {
+    const text = document.getElementById('manualOverrideText');
+    const icon = document.getElementById('manualOverrideIcon');
+    if (!text || !icon) return;
+
+    if (showManualOverride) {
+        text.textContent = 'Nyala';
+        icon.textContent = '🟡';
+    } else {
+        text.textContent = 'Mati';
+        icon.textContent = '⚪';
     }
 }
 
